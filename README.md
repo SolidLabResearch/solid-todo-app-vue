@@ -4,8 +4,11 @@ This is just a small experiment to figure out some details related to implementi
 
 So far, the prototype does the following:
 
-* Allows logging in and out of a webId provider, with the user providing the webId and the provider being discovered via `solid:oidcIssuer` predicate in their webId triples using a SPARQL query
+* Allows logging in and out of a webId provider
+  * The user provides their webId, and the provider is discovered via `solid:oidcIssuer` predicate in their webId triples using a SPARQL query
+  * The application fetches and displays the user's name from `foaf:name` or `foaf:givenName` after logging in, with a SPARQL query
 * Displays to-do entries (using a custom vocabulary) linked in the webId, using a SPARQL query
+  * The entries have save and delete buttons on them, but they do not do anything yet
 
 Available scripts:
 
