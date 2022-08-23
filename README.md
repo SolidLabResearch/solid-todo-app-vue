@@ -4,8 +4,8 @@ This is just a small experiment to figure out some details related to implementi
 
 So far, the prototype does the following:
 
-* Allows logging in and out of a webId provider
-* Displays to-do entries (using a custom vocabulary) linked in the webId
+* Allows logging in and out of a webId provider, with the user providing the webId and the provider being discovered via `solid:oidcIssuer` predicate in their webId triples using a SPARQL query
+* Displays to-do entries (using a custom vocabulary) linked in the webId, using a SPARQL query
 
 Available scripts:
 
