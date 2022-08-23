@@ -10,6 +10,7 @@
     "standard-with-typescript"
   ],
   "ignorePatterns": [
+    "vite.config.ts",
     "dist"
   ],
   "parser": "vue-eslint-parser",
