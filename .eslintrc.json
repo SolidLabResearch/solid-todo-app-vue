@@ -4,11 +4,20 @@
     "es2021": true
   },
   "extends": [
+    "eslint:recommended",
+    "plugin:vue/base",
     "plugin:vue/vue3-essential",
     "standard-with-typescript"
   ],
-  "overrides": [],
+  "ignorePatterns": [
+    "dist"
+  ],
+  "parser": "vue-eslint-parser",
   "parserOptions": {
+    "parser": "@typescript-eslint/parser",
+    "extraFileExtensions": [
+      ".vue"
+    ],
     "ecmaVersion": "latest",
     "sourceType": "module",
     "project": "tsconfig.json"
@@ -17,6 +26,7 @@
     "vue"
   ],
   "rules": {
+    "vue/no-mutating-props": "off",
     "no-unused-expressions": "error",
     "no-unused-labels": "error",
     "no-unused-vars": "error",

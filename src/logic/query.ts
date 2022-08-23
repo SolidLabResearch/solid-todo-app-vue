@@ -1,7 +1,7 @@
 import { Session } from '@inrupt/solid-client-authn-browser'
 import { QueryEngine } from '@comunica/query-sparql-link-traversal-solid'
 import { Bindings, BindingsStream, QueryStringContext } from '@comunica/types'
-import { Quad, Term, NamedNode } from 'n3'
+import { Quad, Term, NamedNode, Literal } from 'n3'
 
 import { type ITask, Task } from './model'
 
@@ -77,4 +77,24 @@ async function findOidcIssuer(webId: URL): Promise<URL> {
   })
 }
 
-export { findTaskEntries, findOidcIssuer }
+async function findName(webId: URL): Promise<string> {
+  return await new Promise<string>((resolve, reject) => {
+    const nameQuery: string = `
+      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+      SELECT ?s ?o WHERE {
+        ?s rdf:type foaf:Person .
+        ?s (foaf:givenName|foaf:name) ?o .
+      }
+    `
+    void execute(nameQuery, webId.href, undefined, (bindings: Bindings) => {
+      const name: Literal = bindings.get('o') as Literal
+      console.log(`Found name for ${webId.href} as ${name.value}`)
+      // throw 'in the towel'
+      resolve(name.value)
+    })
+  })
+}
+
+export { findTaskEntries, findOidcIssuer, findName }

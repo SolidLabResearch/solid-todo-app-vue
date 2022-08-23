@@ -1,17 +1,12 @@
 <script setup lang="ts">
 import { tasks } from '../logic/data'
-import TaskEntry from './TaskEntry.vue'
+import { session } from '../logic/session'
+import TaskListItem from './TaskListItem.vue'
 </script>
 
 <template>
-  <div class="tasklist">
-    <TaskEntry v-bind:key="task.id" v-for="task in tasks" :task="task" />
+  <div v-if="session.info.isLoggedIn" class="flex flex-col m-6">
+    <TaskListItem v-for="task in tasks" v-bind:key="task.id" :task="task" />
   </div>
+  <p v-else class="m-auto text-center">Please log in via your WebID provider to begin!</p>
 </template>
-
-<style scoped>
-.tasklist {
-  display: flex;
-  flex-direction: column;
-}
-</style>

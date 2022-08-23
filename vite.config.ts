@@ -10,7 +10,7 @@ export default defineConfig({
   plugins: [vue()],
   optimizeDeps: {
     esbuildOptions: {
-      plugins: [NodeGlobalsPolyfillPlugin({process: true, buffer: true}), NodeModulesPolyfillPlugin()]
+      plugins: [NodeGlobalsPolyfillPlugin({ process: true, buffer: true }), NodeModulesPolyfillPlugin()]
     }
   },
   build: {

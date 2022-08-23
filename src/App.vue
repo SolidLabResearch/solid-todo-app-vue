@@ -1,65 +1,22 @@
 <script setup lang="ts">
-import Account from './components/Account.vue'
+import LoginMenu from './components/LoginMenu.vue'
 import TaskList from './components/TaskList.vue'
 </script>
 
 <template>
-  <header>
-    <img src="/solid.svg" class="logo" />
-    <h1>Solid Tasks</h1>
+  <header class="bg-white flex flex-row items-center py-3 px-6 drop-shadow-md">
+    <img src="/solid.svg" class="h-8 mr-3">
+    <h1 class="text-solidblue text-lg uppercase mr-auto">Solid Tasks</h1>
     <Suspense>
-      <Account />
+      <LoginMenu />
     </Suspense>
   </header>
-  <main>
+  <main class="flex flex-col flex-grow">
     <Suspense>
       <TaskList />
     </Suspense>
   </main>
-  <footer>
-    <p>Yay!</p>
+  <footer class="mt-auto p-6 bg-solidblue">
+    <p class="my-6 mx-auto text-white text-center">Yay!</p>
   </footer>
 </template>
-
-<style scoped>
-header {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  box-shadow: 0 0 0.2rem grey;
-  padding: 1rem 2rem;
-  background-color: white;
-}
-
-header h1 {
-  font-size: 1.0rem;
-  margin: 0 auto 0 0.8rem;
-  padding: 0;
-}
-
-main {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-  margin: 1rem 2rem 6rem 2rem;
-}
-
-footer {
-  display: flex;
-  flex-direction: row;
-  margin-top: auto;
-  background-color: var(--color-primary);
-  padding: 3rem;
-}
-
-footer p {
-  margin: auto;
-  color: whitesmoke;
-  font-size: 0.8rem;
-}
-
-.logo {
-  height: 1.8em;
-  width: auto;
-}
-</style>
