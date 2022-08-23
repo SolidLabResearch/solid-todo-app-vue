@@ -10,7 +10,7 @@ on:
 
 jobs:
   lint:
-    name: Lint
+    name: Lint and build
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
@@ -19,5 +19,5 @@ jobs:
       run: npm ci
     - name: Run ESLint
       run: npm run lint
-    - name: Build project
+    - name: Build with Vite
       run: npm run build

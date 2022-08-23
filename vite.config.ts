@@ -20,6 +20,17 @@ export default defineConfig({
   build: {
     target: 'esnext',
     rollupOptions: {
+      output: {
+        manualChunks: (id: string) => {
+          if (id.includes('@comunica')) {
+            return 'comunica'
+          } else if (id.includes('@inrupt')) {
+            return 'inrupt'
+          } else {
+            return 'vendor'
+          }
+        }
+      },
       plugins: [
         // @ts-ignore
         rollupNodePolyfill()
