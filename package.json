@@ -11,7 +11,6 @@
   },
   "dependencies": {
     "@comunica/query-sparql-link-traversal-solid": "^0.0.2-alpha.4.0",
-    "@inrupt/solid-client": "^1.23.1",
     "@inrupt/solid-client-authn-browser": "^1.12.2",
     "vue": "^3.2.37"
   },
