@@ -14,6 +14,7 @@ export default defineConfig({
   },
   optimizeDeps: {
     esbuildOptions: {
+      target: 'esnext',
       plugins: [NodeGlobalsPolyfillPlugin({ process: true, buffer: true }), NodeModulesPolyfillPlugin()]
     }
   },

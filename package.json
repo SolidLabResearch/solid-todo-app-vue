@@ -10,7 +10,7 @@
     "lint": "eslint . --ext .vue --ext .ts --ext .js --max-warnings 0"
   },
   "dependencies": {
-    "@comunica/query-sparql-link-traversal-solid": "^0.0.2-alpha.4.0",
+    "@comunica/query-sparql-link-traversal-solid": "^0.0.2-alpha.5.0",
     "@inrupt/solid-client-authn-browser": "^1.12.2",
     "vue": "^3.2.37"
   },
