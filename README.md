@@ -2,7 +2,7 @@
 
 This is just a small experiment to figure out some details related to implementing a to-do application on top of Solid, and is **not intended for actual use** in any capacity whatsoever. The prototpe is written with [Vue](https://vuejs.org/), and uses [Vite](https://vitejs.dev/) for bundling. The to-do entries are intended to be stored in a Solid pod, and fetched using [Comunica](https://github.com/comunica/comunica-feature-link-traversal).
 
-![user interface](./interface.png "User interface")
+![user interface](./data/interface.png "User interface")
 
 So far, the prototype does the following:
 
