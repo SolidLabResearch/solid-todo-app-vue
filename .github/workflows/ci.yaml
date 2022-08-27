@@ -15,8 +15,11 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 18
     - name: Install dependencies
-      run: yarn install --frozen-lockfile
+      run: yarn install --frozen-lockfile --ignore-engines
     - name: Run ESLint
       run: yarn run lint
     - name: Build with Vite
