@@ -1,0 +1,16 @@
+@prefix schema: <http://schema.org/> .
+
+<> a schema:CreativeWork, schema:DataFeed, schema:ItemList ;
+  schema:name "Example list" ;
+  schema:description "An example of a to-do list" ;
+  schema:hasPart <#entry1> .
+
+<#entry1> a schema:CreativeWork, schema:DataFeedItem, schema:ListItem ;
+  schema:isPartOf <> ;                            # the list
+  schema:name "Buy milk" ;                        # string
+  schema:creator <https://example.org/johncena> ; # WebID
+  schema:dateCreated "2022-08-01" ;               # schema:DateTime
+  schema:dateModified "2022-08-02" ;              # schema:DateTime
+  schema:position 0 ;                             # schema:Integer
+  schema:description "Example description" ;      # string
+  schema:actionStatus schema:ActiveActionStatus ; # ActiveActionStatus, CompletedActionStatus, FailedActionStatus, PotentialActionStatus .

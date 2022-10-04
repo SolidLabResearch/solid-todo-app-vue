@@ -1,100 +1,157 @@
-import { Session } from '@inrupt/solid-client-authn-browser'
-import { QueryEngine } from '@comunica/query-sparql-link-traversal-solid'
-import { Bindings, BindingsStream, QueryStringContext } from '@comunica/types'
-import { Quad, Term, NamedNode, Literal } from 'n3'
+import { session } from './session'
+import { type ITaskList, type ITask, type IWebID, find, update } from './model'
 
-import { type ITask, Task } from './model'
+async function getTaskLists(): Promise<ITaskList[]> {
+  const query: string = `
+    PREFIX schema: <http://schema.org/>
 
-const engine: QueryEngine = new QueryEngine()
-const sessionKey: string = '@comunica/actor-http-inrupt-solid-client-authn:session'
-type BindingsHandler = (bindings: Bindings) => void
-
-async function execute(query: string, initialDocument: string, session: Session | undefined, bindingsHandler: BindingsHandler): Promise<void> {
-  return await new Promise<void>((resolve, reject) => {
-    const context: QueryStringContext = {
-      sources: [initialDocument],
-      [sessionKey]: session,
-      lenient: true
+    SELECT ?id ?name ?description WHERE {
+      ?id a schema:CreativeWork, schema:DataFeed, schema:ItemList .
+      ?id schema:name ?name .
+      ?id schema:description ?description .
     }
-    engine
-      .queryBindings(query, context)
-      .then((bindingsStream: BindingsStream) => {
-        bindingsStream
-          .on('data', (bindings: Bindings) => bindingsHandler(bindings))
-          .on('error', (error: Error) => reject(error))
-          .on('end', () => resolve())
-      })
-      .catch((reason: any) => reject(reason))
-  })
+  `
+  const matchingTaskLists: ITaskList[] = await find<ITaskList>(query, session)
+  // console.log(matchingTaskLists)
+  // throw new Error('break')
+  return matchingTaskLists
 }
 
-async function findTaskEntries(session: Session): Promise<ITask[]> {
-  return await new Promise<ITask[]>((resolve, reject) => {
-    const taskData: Map<NamedNode, Quad[]> = new Map<NamedNode, Quad[]>()
-    const taskQuery: string = `
-      PREFIX todo: <https://example.org/todo/>
-      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+/*
+async function testTaskListData(taskList: ITaskList): Promise<void> {
+  const query: string = `
+    PREFIX schema: <http://schema.org/>
 
-      SELECT ?s ?p ?o WHERE {
-        ?s rdf:type todo:Task .
-        ?s ?p ?o .
-      }
-    `
-    void execute(taskQuery, session.info.webId as string, session, (bindings: Bindings) => {
-      const todoURI: NamedNode = bindings.get('s') as NamedNode
-      if (!taskData.has(todoURI)) {
-        taskData.set(todoURI, new Array<Quad>())
-      }
-      taskData.get(todoURI)?.push(new Quad(todoURI, bindings.get('p') as Term, bindings.get('o') as Term))
-    })
-      .catch((reason: any) => reject(reason))
-      .then(() => {
-        const taskList: ITask[] = new Array<ITask>()
-        for (const quads of taskData.values()) {
-          taskList.push(new Task(quads))
-        }
-        resolve(taskList)
-      })
-  })
+    SELECT * WHERE {
+      ?id a schema:CreativeWork, schema:DataFeed, schema:ItemList .
+      FILTER ( ?id = <${taskList.id}> ) .
+    }
+  `
+  console.log(query)
+  await print(query, session, taskList.id)
+}
+*/
+
+function updateQueries(properies: Record<string, string>, classes: string, id: string): Array<Promise<void>> {
+  const updateQuery = (property: string, value: string, classes: string): string => `
+    PREFIX schema: <http://schema.org/>
+
+    DELETE {
+      ?id ${property} ?value .
+    }
+    INSERT {
+      ?id ${property} ${value} .
+    }
+    WHERE {
+      ?id a ${classes} .
+      FILTER ( ?id = <${id}> ) .
+      ?id ${property} ?value .
+      FILTER ( ?value != ${value} )
+    }
+  `
+  return Object.entries(properies).map(async ([key, value]) => await update(updateQuery(key, value, classes), session, id))
 }
 
-async function findOidcIssuer(webId: URL): Promise<URL> {
-  return await new Promise<URL>((resolve, reject) => {
-    const issuerQuery: string = `
-      PREFIX solid: <http://www.w3.org/ns/solid/terms#>
-
-      SELECT ?s ?o WHERE {
-        ?s solid:oidcIssuer ?o .
-      }
-    `
-    void execute(issuerQuery, webId.href, undefined, (bindings: Bindings) => {
-      const issuer: NamedNode = bindings.get('o') as NamedNode
-      const issuerURL: URL = new URL(issuer.value)
-      console.log(`Found webID issuer for ${webId.href} at ${issuerURL.href}`)
-      // throw 'in the towel'
-      resolve(issuerURL)
-    })
-  })
+async function saveTaskListData(taskList: ITaskList): Promise<void> {
+  const classes: string = 'schema:CreativeWork, schema:DataFeed, schema:ItemList'
+  const properties: Record<string, string> = {
+    'schema:name': `"${taskList.name}"`,
+    'schema:description': `"${taskList.description}"`
+  }
+  await Promise.all(updateQueries(properties, classes, taskList.id))
 }
 
-async function findName(webId: URL): Promise<string> {
-  return await new Promise<string>((resolve, reject) => {
-    const nameQuery: string = `
-      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-      PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+/*
+async function saveTaskListAccess(taskList: ITaskList): Promise<void> {
+  const query: string = `
+    PREFIX acl: <http://www.w3.org/ns/auth/acl#>
+    PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 
-      SELECT ?s ?o WHERE {
-        ?s rdf:type foaf:Person .
-        ?s (foaf:givenName|foaf:name) ?o .
-      }
-    `
-    void execute(nameQuery, webId.href, undefined, (bindings: Bindings) => {
-      const name: Literal = bindings.get('o') as Literal
-      console.log(`Found name for ${webId.href} as ${name.value}`)
-      // throw 'in the towel'
-      resolve(name.value)
-    })
-  })
+    WITH <${taskList.id}.acl>
+    DELETE {
+      ?id acl:accessTo ?accessTo .
+      ?id acl:mode ?mode .
+    }
+    INSERT {
+      ?id acl:accessTo <${taskList.id}> .
+      ?id acl:agent <${session.info.webId as string}> .
+      ?id acl:mode acl:Read, acl:Write, acl:Control .
+    }
+    WHERE {
+      ?id a acl:Authorization .
+      ?id acl:agent <${session.info.webId as string}> .
+      ?id acl:accessTo <${taskList.id}> .
+    }
+  `
+  console.log(query)
+  await update(query, session, `${taskList.id}.acl`)
+}
+*/
+
+async function saveTaskList(taskList: ITaskList): Promise<void> {
+  // await testTaskListData(taskList)
+  await saveTaskListData(taskList)
+  // await saveTaskListAccess(taskList)
 }
 
-export { findTaskEntries, findOidcIssuer, findName }
+async function saveTaskData(taskList: ITaskList, task: ITask): Promise<void> {
+  const classes: string = 'schema:CreativeWork, schema:DataFeedItem, schema:ListItem'
+  const properties: Record<string, string> = {
+    'schema:name': `"${task.name}"`,
+    'schema:description': `"${task.description}"`,
+    'schema:isPartOf': `<${taskList.id}>`,
+    'schema:creator': `<${session.info.webId as string}>`,
+    'schema:dateCreated': `"${task.created ?? new Date().toISOString()}"`,
+    'schema:dateModified': `"${new Date().toISOString()}"`,
+    'schema:position': `"${task.position ?? '0'}"`,
+    'schema:actionStatus': `<${task.status}>`
+  }
+  await Promise.all(updateQueries(properties, classes, task.id ?? `${taskList.id}#${task.name?.toLowerCase().replace(' ', '-')}`))
+}
+
+async function saveTask(taskList: ITaskList, task: ITask): Promise<void> {
+  await saveTaskData(taskList, task)
+}
+
+async function getTasks(taskList: ITaskList): Promise<ITask[]> {
+  const query: string = `
+    PREFIX schema: <http://schema.org/>
+
+    SELECT ?id ?name ?creator ?created ?modified ?position ?status ?description WHERE {
+      ?id a schema:CreativeWork, schema:DataFeedItem, schema:ListItem .
+      ?id schema:isPartOf <${taskList.id}> .
+      ?id schema:name ?name .
+      ?id schema:creator ?creator .
+      ?id schema:dateCreated ?created .
+      ?id schema:dateModified ?modified .
+      ?id schema:position ?position .
+      ?id schema:actionStatus ?status .
+      ?id schema:description ?description .
+    }
+  `
+  const matchingTasks: ITask[] = await find<ITask>(query, session)
+  // console.log(matchingTasks)
+  // throw new Error('break')
+  return matchingTasks
+}
+
+async function getWebID(webId?: string): Promise<IWebID> {
+  const webIdUrl: string = session.info.isLoggedIn ? session.info.webId as string : webId as string
+  const query: string = `
+    PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+    PREFIX solid: <http://www.w3.org/ns/solid/terms#>
+
+    SELECT ?id ?givenName ?familyName ?oidcIssuer WHERE {
+      ?id a foaf:Person .
+      ?id foaf:givenName ?givenName .
+      ?id foaf:familyName ?familyName .
+      ?id solid:oidcIssuer ?oidcIssuer .
+    } LIMIT 1
+  `
+  const matchingWebIds: IWebID[] = await find<IWebID>(query, undefined, webIdUrl)
+  // console.log(matchingWebIds)
+  // throw new Error('break')
+  return matchingWebIds[0]
+}
+
+export { getTaskLists, getTasks, getWebID, saveTaskList, saveTask }

@@ -3,11 +3,11 @@ import { Session } from '@inrupt/solid-client-authn-browser'
 const session: Session = new Session()
 const afterRedirectCallbacks: CallableFunction[] = new Array<CallableFunction>()
 
-async function login(provider: URL): Promise<void> {
+async function login(provider: string): Promise<void> {
   if (!session.info.isLoggedIn) {
-    console.log(`Login with ${provider.href}`)
+    console.log(`Login with ${provider}`)
     await session.login({
-      oidcIssuer: provider.href,
+      oidcIssuer: provider,
       clientName: 'Solid Tasks',
       redirectUrl: window.location.href
     })

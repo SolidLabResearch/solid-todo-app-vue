@@ -39,7 +39,8 @@
         "named": "never"
       }
     ],
-    "indent": [
+    "indent": "off",
+    "@typescript-eslint/indent": [
       "error",
       2
     ]
