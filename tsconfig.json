@@ -12,7 +12,7 @@
     "sourceMap": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "esModuleInterop": false,
+    "esModuleInterop": true,
     "lib": [
       "ESNext",
       "DOM"
@@ -20,6 +20,8 @@
     "skipLibCheck": true
   },
   "include": [
-    "src"
+    "src/**/*.json",
+    "src/**/*.vue",
+    "src/**/*.ts"
   ]
 }

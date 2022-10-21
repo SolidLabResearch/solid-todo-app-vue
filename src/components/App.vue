@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import LoginForm from './LoginForm.vue'
 import TaskListBrowser from './TaskListBrowser.vue'
-import { session } from '../logic/session'
+import NotificationsContainer from './NotificationsContainer.vue'
+import { session } from '../logic'
 </script>
 
 <template>
-  <Suspense v-if="session.info.isLoggedIn">
-    <TaskListBrowser />
-  </Suspense>
-  <Suspense v-else>
-    <LoginForm />
+  <NotificationsContainer />
+  <Suspense>
+    <TaskListBrowser v-if="session.info.isLoggedIn" />
+    <LoginForm v-else />
   </Suspense>
 </template>

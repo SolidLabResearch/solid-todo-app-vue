@@ -1,21 +1,25 @@
 <script setup lang="ts">
 import { ref, Ref } from 'vue'
-import { getWebID } from '../logic/query'
-import { login } from '../logic/session'
+import { login, getWebID, defaultWebId, error, translations } from '../logic'
+import LanguageSelector from './LanguageSelector.vue'
 
-const webId: Ref<string> = ref('http://localhost:3000/profile/card#me')
+const webIdUrl: Ref<string> = ref(defaultWebId)
 
-function loginHandler(event: Event): void {
-  event.preventDefault()
-  getWebID(webId.value).then((webIdObject) => login(webIdObject.oidcIssuer))
+function loginHandler(): void {
+  getWebID(webIdUrl.value)
+    .then((webId) => login(webId.oidcIssuer, translations.value.appName))
+    .catch((reason: any) => error(reason))
 }
 </script>
 
 <template>
-  <main class="rounded-md bg-white p-8 flex flex-col w-1/5 m-auto space-y-4">
+  <header class="flex flex-row fixed right-0 top-0">
+    <LanguageSelector />
+  </header>
+  <main class="bg-white flex flex-col m-auto w-1/5 p-8 gap-y-4">
     <img src="/solid.svg" class="w-14 h-auto mx-auto" />
-    <h2 class="uppercase text-lg text-center">Solid Tasks</h2>
-    <input type="text" placeholder="WebID" v-model="webId" class="py-1 px-2 border border-gray-400" />
-    <button v-on:click="loginHandler" class="py-1 px-2 text-white bg-royallavender hover:bg-black">Login</button>
+    <h2 class="uppercase text-lg text-center">{{ translations.appName }}</h2>
+    <input type="text" :placeholder="translations.webId" v-model="webIdUrl" class="py-1 px-2 border border-gray-400" />
+    <button @click="loginHandler" class="py-1 px-2 text-white bg-royallavender hover:bg-black">{{ translations.login }}</button>
   </main>
 </template>

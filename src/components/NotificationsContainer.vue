@@ -1,9 +1,21 @@
 <script setup lang="ts">
-import { notifications } from '../logic/notifications'
+import { notifications } from '../logic'
 </script>
 
 <template>
-  <div class="flex flex-col-reverse absolute right-0 bottom-1/2">
-    <p class="bg-emerald-700 py-2 px-3 text-white shadow-md" v-for="notification in notifications" v-bind:key="notification">{{ notification}}</p>
+  <div class="flex flex-col-reverse">
+    <p class="py-2 px-3 text-white hover:opacity-80 text-center cursor-pointer" v-on:click="notifications.delete(notification)" :class="notification.type" v-for="notification in notifications" v-bind:key="notification.message">{{ notification.message }}</p>
   </div>
 </template>
+
+<style scoped>
+  p.info {
+    background-color: cornflowerblue;
+  }
+  p.error {
+    background-color: crimson;
+  }
+  p.confirmation {
+    background-color: green;
+  }
+</style>

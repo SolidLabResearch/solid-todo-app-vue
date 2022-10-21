@@ -1,0 +1,23 @@
+{
+  "login": "Kirjaudu sisään",
+  "logout": "Kirjaudu ulos",
+  "webId": "WebID",
+  "webIdNameFallback": "Kirjauduttu WebID:llä",
+  "oidcIssuer": "OIDC-julkaisija",
+  "appName": "Solid-tehtävälista",
+  "footerText": "Jeeeeees!",
+  "name": "nimi",
+  "creator": "luoja",
+  "created": "luotu",
+  "modified": "muokattu",
+  "status": "tila",
+  "description": "kuvaus",
+  "updateSuccess": "Päivitetty onnistuneesti",
+  "createSuccess": "Luotu onnistuneesti",
+  "deleteSuccess": "Poistettu onnistuneesti",
+  "wait": "Ole hyvä ja odota hetki...",
+  "active": "avoin",
+  "potential": "mahdollinen",
+  "failed": "epäonnistunut",
+  "completed": "valmis"
+}
