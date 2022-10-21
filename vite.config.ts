@@ -22,6 +22,7 @@ const manualChunksResolver = (id: string) => {
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [vue()],
+  base: '/solid-todo-app-vue/',
   resolve: {
     alias: {
       buffer: 'rollup-plugin-node-polyfills/polyfills/buffer-es6'
