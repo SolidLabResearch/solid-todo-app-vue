@@ -8,16 +8,20 @@
     "module": "ESNext",
     "moduleResolution": "Node",
     "strict": true,
-    "jsx": "preserve",
     "sourceMap": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "esModuleInterop": true,
+    "esModuleInterop": false,
+    "skipLibCheck": true,
+    "alwaysStrict": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "allowJs": false,
+    "removeComments": true,
     "lib": [
       "ESNext",
       "DOM"
-    ],
-    "skipLibCheck": true
+    ]
   },
   "include": [
     "src/**/*.json",

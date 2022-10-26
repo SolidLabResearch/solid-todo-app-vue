@@ -1,5 +1,5 @@
 interface ITask {
-  id: string
+  id: URL
   name: string
   creator: string
   created: string
@@ -9,18 +9,20 @@ interface ITask {
 }
 
 interface ITaskList {
-  id: string
+  id: URL
   name: string
+  creator: string
+  created: string
+  modified: string
   description: string
 }
 
 interface IWebID {
-  id: string
+  id: URL
   name?: string
   storage?: string
   oidcIssuer: string
-  taskContainerPathTemplate?: string
-  taskInstancePathTemplate?: string
+  pathTemplate?: string
 }
 
 interface INotification {
@@ -28,17 +30,15 @@ interface INotification {
   message: string
 }
 
-const taskStatusValues: Set<string> = new Set<string>([
+const taskStatusValues: string[] = [
   'http://schema.org/ActiveActionStatus',
   'http://schema.org/PotentialActionStatus',
   'http://schema.org/CompletedActionStatus',
   'http://schema.org/FailedActionStatus'
-])
+]
 
 const allowedCharacters: string = 'abcdefghijklmnopqrstuwvxyz1234567890'
-const defaultContainerPathTemplate: string = '{storage}/tasks'
-const defaultInstancePathTemplate: string = '{storage}/tasks/{tasklist}'
-
+const defaultTaskPath: string = 'private/todosnew/todos.ttl'
 const defaultWebId: string = '' // 'http://localhost:3000/example/profile/card#me' // for local development purposes
 
 function identifierFromName(name: string): string {
@@ -46,4 +46,4 @@ function identifierFromName(name: string): string {
   return Array.from(name.trim().toLowerCase()).map((char) => allowedCharacters.includes(char) ? char : '-').join('')
 }
 
-export { type ITask, type ITaskList, type IWebID, type INotification, taskStatusValues, defaultWebId, defaultContainerPathTemplate, defaultInstancePathTemplate, identifierFromName }
+export { type ITask, type ITaskList, type IWebID, type INotification, taskStatusValues, defaultWebId, defaultTaskPath, identifierFromName }

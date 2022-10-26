@@ -6,6 +6,7 @@
   "oidcIssuer": "OIDC-julkaisija",
   "appName": "Solid-tehtävälista",
   "footerText": "Jeeeeees!",
+  "id": "id",
   "name": "nimi",
   "creator": "luoja",
   "created": "luotu",

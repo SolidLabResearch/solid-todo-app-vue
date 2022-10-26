@@ -1,7 +1,4 @@
 import { defineConfig } from 'vite'
-import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill'
-import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfill'
-import rollupNodePolyfill from 'rollup-plugin-node-polyfills'
 import vue from '@vitejs/plugin-vue'
 
 const manualRollupChunks: Record<string, string> = {
@@ -10,14 +7,7 @@ const manualRollupChunks: Record<string, string> = {
   '@vue': 'vue'
 }
 
-const manualChunksResolver = (id: string) => {
-  for (const [keyword, chunk] of Object.entries(manualRollupChunks)) {
-    if (id.includes(keyword)) {
-      return chunk
-    }
-  }
-  return 'vendor'
-}
+const manualChunksResolver = (id: string) => Object.entries(manualRollupChunks).find(([keyword, chunk]) => id.includes(keyword))?.[1] ?? 'vendor'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -25,13 +15,15 @@ export default defineConfig({
   base: '/solid-todo-app-vue/',
   resolve: {
     alias: {
-      buffer: 'rollup-plugin-node-polyfills/polyfills/buffer-es6'
+      buffer: 'buffer'
     }
   },
   optimizeDeps: {
     esbuildOptions: {
       target: 'esnext',
-      plugins: [NodeGlobalsPolyfillPlugin({ process: true, buffer: true }), NodeModulesPolyfillPlugin()]
+      define: {
+        global: 'globalThis'
+      }
     }
   },
   build: {
@@ -39,11 +31,7 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: manualChunksResolver
-      },
-      plugins: [
-        // @ts-ignore
-        rollupNodePolyfill()
-      ]
+      }
     }
   }
 })

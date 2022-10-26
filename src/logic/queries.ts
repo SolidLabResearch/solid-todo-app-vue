@@ -1,6 +1,6 @@
 import { session } from './session'
 import { find, findOne, update } from './engine'
-import { type ITaskList, type ITask, type IWebID, defaultContainerPathTemplate, defaultInstancePathTemplate, identifierFromName } from './model'
+import { type ITaskList, type ITask, type IWebID, defaultTaskPath, taskStatusValues, identifierFromName } from './model'
 
 const prefixes: string = `
   PREFIX foaf: <http://xmlns.com/foaf/0.1/>
@@ -18,72 +18,52 @@ const taskClasses: string = 'todo:Task'
 /** Retrieval of specific entries */
 
 async function getWebID(webId?: string): Promise<IWebID> {
-  const webIdValue: string | undefined = session.info.isLoggedIn ? session.info.webId : webId
-  if (webIdValue != null && webIdValue.length > 0 && webIdValue.match(/http(s)?:\/\//) != null) {
-    const query: string = `
-      ${prefixes}
+  const webIdValue: URL = new URL(webId ?? session.info.webId as string)
+  const query: string = `
+    ${prefixes}
 
-      SELECT * WHERE {
-        ?id a foaf:Person .
-        FILTER ( ?id = <${webIdValue}> ) .
-        ?id solid:oidcIssuer ?oidcIssuer .
-        OPTIONAL { ?id pim:storage ?storage } .
-        OPTIONAL { ?id foaf:name|foaf:givenName ?name } .
-        OPTIONAL { ?id ex:taskPathTemplate ?taskPathTemplate } .
-      }
-    `
-    return await findOne<IWebID>(query, undefined, webIdValue)
-  }
-  throw new Error('No WebID URL provided for retrieval')
+    SELECT * WHERE {
+      ?id a foaf:Person .
+      FILTER ( ?id = <${webIdValue.href}> ) .
+      ?id solid:oidcIssuer ?oidcIssuer .
+      OPTIONAL { ?id pim:storage ?storage } .
+      OPTIONAL { ?id foaf:name|foaf:givenName ?name } .
+      OPTIONAL { ?id todo:pathTemplate ?pathTemplate } .
+    }
+  `
+  return await findOne<IWebID>(query, session, webIdValue)
 }
 
-async function replaceTemplateValues(input: string, webId?: IWebID, taskListId?: string, taskId?: string): Promise<string> {
-  const time: Date = new Date()
-  let output = input
-    .replace('{year}', time.getUTCFullYear().toString())
-    .replace('{month}', time.getUTCMonth().toString())
-    .replace('{date}', time.getUTCDate().toString())
-  if (webId?.storage != null) {
-    output = output.replace('{storage}', webId.storage.replace(/\/$/, ''))
-  }
-  if (taskListId != null) {
-    output = output.replace('{tasklist}', taskListId)
-  }
-  if (taskId != null) {
-    output = output.replace('{task}', taskId)
-  }
-  if (output.includes('{path}')) {
-    const path: string = await getTaskDataContainerPath()
-    output = output.replace('{path}', path)
-  }
-  while (output.includes('//')) {
-    output = output.replace('//', '/')
-  }
-  output = output.replace('http:/', 'http://').replace('https:/', 'https://') // fixes the first double slash :d
-  return output
-}
+async function getStoragePath(taskListName?: string, taskName?: string): Promise<URL> {
+  const webId: IWebID = await getWebID()
 
-async function getTaskDataContainerPath(): Promise<string> {
-  const webId: IWebID = await getWebID(session.info.webId)
-  if (webId.taskContainerPathTemplate == null) {
-    await save('foaf:Person', webId.id, { 'ex:taskContainerPathTemplate': `"${defaultContainerPathTemplate}"` })
-    webId.taskContainerPathTemplate = defaultContainerPathTemplate
-  }
-  return await replaceTemplateValues(webId.taskContainerPathTemplate, webId)
-}
+  let path: string = new URL(defaultTaskPath, webId.storage ?? webId.id).href
 
-async function getTaskDataInstancePath(taskListId?: string, taskId?: string): Promise<string> {
-  const webId: IWebID = await getWebID(session.info.webId)
-  if (webId.taskInstancePathTemplate == null) {
-    await save('foaf:Person', webId.id, { 'ex:taskInstancePathTemplate': `"${defaultInstancePathTemplate}"` })
-    webId.taskInstancePathTemplate = defaultInstancePathTemplate
+  if (webId.pathTemplate != null) {
+    const time: Date = new Date()
+
+    path = webId.pathTemplate
+      .replace('{year}', time.getUTCFullYear().toString())
+      .replace('{month}', time.getUTCMonth().toString())
+      .replace('{date}', time.getUTCDate().toString())
+      .replace('{storage}', webId.storage?.replace(/\/$/, '') ?? '')
+      .replace('{tasklist}', taskListName != null ? identifierFromName(taskListName) : '')
+      .replace('{task}', taskName != null ? identifierFromName(taskName) : '')
+
+    // removes duplicate slashes in the middle
+    while (path.includes('//')) {
+      path = path.replace('//', '/')
+    }
+
+    path = path.replace('http:/', 'http://').replace('https:/', 'https://') // fixes the first double slash :d
   }
-  return await replaceTemplateValues(webId.taskInstancePathTemplate, webId, taskListId, taskId)
+
+  return new URL(path)
 }
 
 /** Creating */
 
-async function create(classes: string, url: string, id: string | undefined, predicateValues: Record<string, string>): Promise<void> {
+async function create(classes: string, url: URL, id: string | undefined, predicateValues: Record<string, string>): Promise<void> {
   const actualId: string = id == null ? '' : `#${id}`
 
   const predicateData: string = Object.entries(predicateValues).map(([predicate, value]) => `<${actualId}> ${predicate} ${value} .`).join('\n')
@@ -104,41 +84,49 @@ async function create(classes: string, url: string, id: string | undefined, pred
     INSERT DATA {
       <#owner> a acl:Authorization .
       <#owner> acl:agent <${session.info.webId as string}> .
-      <#owner> acl:accessTo <${url}> .
+      <#owner> acl:accessTo <${url.href}> .
       <#owner> acl:mode acl:Read, acl:Write, acl:Control .
     }
   `
 
-  await update(accessQuery, session, `${url}.acl`)
+  await update(accessQuery, session, new URL(`${url.href}.acl`))
 }
 
 async function createTask(taskList: ITaskList, name: string): Promise<void> {
   const id: string = identifierFromName(name)
-  const path: string = await getTaskDataInstancePath(taskList.id.split('/').at(-1) as string, id)
+  const path: URL = await getStoragePath(taskList.name, name)
+  const date: Date = new Date()
   const predicateValues: Record<string, string> = {
     'todo:title': `"${name}"`,
-    'todo:isPartOf': `<${taskList.id}>`
+    'todo:isPartOf': `<${taskList.id.href}>`,
+    'todo:createdBy': `<${session.info.webId as string}>`,
+    'todo:dateCreated': `"${date.toISOString()}"`,
+    'todo:dateModified': `"${date.toISOString()}"`,
+    'todo:actionStatus': `<${taskStatusValues[0]}>`
   }
   return await create(taskClasses, path, id, predicateValues)
 }
 
 async function createTaskList(name: string): Promise<void> {
-  const id: string = identifierFromName(name)
-  const path: string = await getTaskDataInstancePath(id)
+  const path: URL = await getStoragePath(name)
+  const date: Date = new Date()
   const predicateValues: Record<string, string> = {
-    'todo:title': `"${name}"`
+    'todo:title': `"${name}"`,
+    'todo:createdBy': `<${session.info.webId as string}>`,
+    'todo:dateCreated': `"${date.toISOString()}"`,
+    'todo:dateModified': `"${date.toISOString()}"`
   }
   return await create(taskListClasses, path, undefined, predicateValues)
 }
 
 /** Removing */
 
-async function remove(classes: string, id: string): Promise<void> {
+async function remove(classes: string, id: URL): Promise<void> {
   const dataQuery: string = `
     ${prefixes}
 
     DELETE WHERE {
-      <${id}> a ${classes} ;
+      <${id.href}> a ${classes} ;
         ?p ?o .
     }
   `
@@ -158,12 +146,12 @@ async function remove(classes: string, id: string): Promise<void> {
 
     DELETE WHERE {
       ?id a acl:Authorization ;
-        acl:accessTo <${id}> ;
+        acl:accessTo <${id.href}> ;
         ?p ?o .
     }
   `
 
-  await update(aclQuery, session, `${id}.acl`)
+  await update(aclQuery, session, new URL(`${id}.acl`))
   */
 }
 
@@ -179,7 +167,7 @@ async function removeTaskList(taskList: ITaskList): Promise<void> {
 
 /** Updating */
 
-async function save(classes: string, id: string, predicateValues: Record<string, string>): Promise<void> {
+async function save(classes: string, id: URL, predicateValues: Record<string, string>): Promise<void> {
   const individualQueries: string[] = Object.entries(predicateValues).map(([predicate, value]) => `
     ${prefixes}
 
@@ -191,7 +179,7 @@ async function save(classes: string, id: string, predicateValues: Record<string,
     }
     WHERE {
       ?id a ${classes} .
-      FILTER ( ?id = <${id}> ) .
+      FILTER ( ?id = <${id.href}> ) .
       ?id ${predicate} ?value .
       FILTER ( ?value != ${value} )
     }
@@ -204,11 +192,11 @@ async function saveTask(taskList: ITaskList, task: ITask): Promise<void> {
   const predicateValues: Record<string, string> = {
     'todo:title': `"${task.name}"`,
     'todo:description': `"${task.description}"`,
-    'todo:isPartOf': `<${taskList.id}>`,
+    'todo:isPartOf': `<${taskList.id.href}>`,
     'todo:createdBy': `<${session.info.webId as string}>`,
     'todo:dateCreated': `"${task.created ?? new Date().toISOString()}"`,
     'todo:dateModified': `"${new Date().toISOString()}"`,
-    'schema:actionStatus': `<${task.status}>`
+    'todo:actionStatus': `<${task.status}>`
   }
   return await save(taskClasses, task.id, predicateValues)
 }
@@ -216,7 +204,10 @@ async function saveTask(taskList: ITaskList, task: ITask): Promise<void> {
 async function saveTaskList(taskList: ITaskList): Promise<void> {
   const predicateValues: Record<string, string> = {
     'todo:title': `"${taskList.name}"`,
-    'todo:description': `"${taskList.description}"`
+    'todo:description': `"${taskList.description}"`,
+    'todo:createdBy': `<${session.info.webId as string}>`,
+    'todo:dateCreated': `"${taskList.created ?? new Date().toISOString()}"`,
+    'todo:dateModified': `"${new Date().toISOString()}"`
   }
   return await save(taskListClasses, taskList.id, predicateValues)
 }
@@ -229,7 +220,7 @@ async function getTasks(taskList: ITaskList): Promise<ITask[]> {
 
     SELECT * WHERE {
       ?id a ${taskClasses} .
-      ?id todo:isPartOf <${taskList.id}> .
+      ?id todo:isPartOf <${taskList.id.href}> .
       ?id todo:title ?name .
       OPTIONAL { ?id todo:createdBy ?creator } .
       OPTIONAL { ?id todo:dateCreated ?created } .
@@ -238,7 +229,7 @@ async function getTasks(taskList: ITaskList): Promise<ITask[]> {
       OPTIONAL { ?id todo:description ?description } .
     }
   `
-  const tasks: ITask[] = await find<ITask>(query, session)
+  const tasks: ITask[] = await find<ITask>(query, session, new URL(session.info.webId as string))
   tasks.sort((a, b) => a.name.localeCompare(b.name))
   return tasks
 }
@@ -250,10 +241,13 @@ async function getTaskLists(): Promise<ITaskList[]> {
     SELECT * WHERE {
       ?id a ${taskListClasses} .
       ?id todo:title ?name .
+      OPTIONAL { ?id todo:createdBy ?creator } .
+      OPTIONAL { ?id todo:dateCreated ?created } .
+      OPTIONAL { ?id todo:dateModified ?modified } .
       OPTIONAL { ?id todo:description ?description } .
     }
   `
-  const taskLists: ITaskList[] = await find<ITaskList>(query, session)
+  const taskLists: ITaskList[] = await find<ITaskList>(query, session, new URL(session.info.webId as string))
   taskLists.sort((a, b) => a.name.localeCompare(b.name))
   return taskLists
 }

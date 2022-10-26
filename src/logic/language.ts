@@ -21,7 +21,7 @@ function setLanguage(lang: string): void {
   translations.value = availableTranslations[lang]
   const pageTitle: HTMLTitleElement = document.getElementsByTagName('title')[0]
   pageTitle.textContent = translations.value.appName
-  setCookie(languageCookie, lang)
+  setCookie(languageCookie, lang, { sameSite: 'strict' })
 }
 
 document.addEventListener('DOMContentLoaded', () => setLanguage(language.value))

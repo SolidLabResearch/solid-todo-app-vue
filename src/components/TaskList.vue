@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { type Ref, type PropType, ref } from 'vue'
-import { type ITask, type ITaskList, getTasks, saveTaskList, createTask, confirmation, error, translations, removeTask } from '../logic'
+import { type ITask, type ITaskList, getTasks, createTask, confirmation, error, translations, removeTask, saveTask } from '../logic'
 import SubmitButton from './SubmitButton.vue'
 import TaskListItem from './TaskListItem.vue'
 import CreateEntryForm from './CreateEntryForm.vue'
 
 const props = defineProps({
   list: { type: Object as PropType<ITaskList>, required: true },
-  removeHandler: { type: Function, required: true }
+  removeHandler: { type: Function, required: true },
+  saveHandler: { type: Function, required: true }
 })
 
 const busy: Ref<boolean> = ref(false)
@@ -24,10 +25,16 @@ function toggleItems(event?: Event): void {
   }
 }
 
-function save(): void {
-  saveTaskList(props.list)
-    .then(() => confirmation(`${translations.value.updateSuccess}: <${props.list.name}>`))
-    .catch((reason: any) => error(reason))
+async function saveTaskWrapper(task: ITask): Promise<void> {
+  await saveTask(props.list, task)
+  const entries: ITask[] = await getTasks(props.list)
+  tasks.value = entries
+}
+
+function saveTaskHandler(task: ITask): void {
+  saveTaskWrapper(task)
+    .then(() => confirmation(`${translations.value.updateSuccess}: ${task.name}`))
+    .catch(error)
 }
 
 async function createTaskWrapper(name: string): Promise<void> {
@@ -58,16 +65,26 @@ function removeTaskHandler(task: ITask): void {
 </script>
 
 <template>
-  <div class="flex flex-col border-l-2 border-b-2 border-r-2 border-white" :title="list.id">
+  <div class="flex flex-col border-l-2 border-b-2 border-r-2 border-white" :title="list.id.href">
     <form class="flex flex-row p-2 bg-white">
       <input type="text" v-model="list.name" class="flex-grow font-semibold" :placeholder="translations.name" />
-      <SubmitButton icon="save" @click="save" />
+      <SubmitButton icon="save" @click="saveHandler(list)" />
       <SubmitButton icon="remove" @click="removeHandler(list)" />
       <SubmitButton icon="toggle" @click="toggleItems" :toggle="showEntries" />
     </form>
+    <div v-if="showEntries" class="grid grid-cols-5 gap-1 bg-white mt-2 ml-2 mr-2 p-2">
+      <label for="{{ list.id }}#id">id</label>
+      <p v-if="list.id" class="col-span-4 text-gray-400" id="{{ list.id }}#id">{{ list.id }}</p>
+      <label v-if="list.creator" for="{{ list.id }}#creator">{{ translations.creator }}</label>
+      <a v-if="list.creator" class="col-span-4 text-gray-400" id="{{ list.id }}#creator" :href="list.creator">{{ list.creator }}</a>
+      <label v-if="list.created" for="{{ list.id }}#created">{{ translations.created }}</label>
+      <p v-if="list.created" class="col-span-4 text-gray-400" id="{{ list.id }}#created">{{ list.created }}</p>
+      <label v-if="list.modified" for="{{ list.id }}#modified">{{ translations.modified }}</label>
+      <p v-if="list.modified" class="col-span-4 text-gray-400" id="{{ list.id }}#modified">{{ list.modified }}</p>
+    </div>
     <div v-if="showEntries" class="flex flex-col gap-2 p-2">
       <CreateEntryForm :create-handler="createTaskHandler" :busy="busy" class="py-1 px-2 bg-white" />
-      <TaskListItem v-for="task in tasks" v-bind:key="task.id" :list="list" :task="task" :remove-handler="removeTaskHandler" class="py-1 px-2 bg-white" />
+      <TaskListItem v-for="task in tasks" v-bind:key="task.id.href" :list="list" :task="task" :remove-handler="removeTaskHandler" :save-handler="saveTaskHandler" class="py-1 px-2 bg-white" />
     </div>
   </div>
 </template>
