@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, type Ref } from 'vue'
-import { translations } from '../logic'
+import { translations } from '../logic/language'
+
 import SubmitButton from './SubmitButton.vue'
 import ProgressIndicator from './ProgressIndicator.vue'
 
@@ -18,8 +19,8 @@ function createHandlerWrapper(): void {
 </script>
 
 <template>
-  <ProgressIndicator icon="arrow" :text="translations.wait" v-if="busy" />
-  <form v-else class="flex flex-row">
+  <ProgressIndicator class="p-2" icon="arrow" :text="translations.wait" v-if="busy" />
+  <form v-else class="flex flex-row p-2 bg-background">
     <input class="flex-grow" v-model="name" type="text" :placeholder="translations.name" minlength="1" />
     <SubmitButton icon="add" @click="createHandlerWrapper" />
   </form>

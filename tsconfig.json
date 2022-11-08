@@ -1,31 +1,28 @@
 {
   "compilerOptions": {
-    "composite": true,
-    "allowSyntheticDefaultImports": true,
-    "experimentalDecorators": true,
     "target": "ESNext",
     "useDefineForClassFields": true,
     "module": "ESNext",
     "moduleResolution": "Node",
     "strict": true,
-    "sourceMap": true,
+    "jsx": "preserve",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "esModuleInterop": false,
-    "skipLibCheck": true,
-    "alwaysStrict": true,
-    "allowUnreachableCode": false,
-    "allowUnusedLabels": false,
-    "allowJs": false,
-    "removeComments": true,
+    "esModuleInterop": true,
     "lib": [
       "ESNext",
       "DOM"
-    ]
+    ],
+    "skipLibCheck": true,
+    "noEmit": true,
+    "composite": true,
+    "allowSyntheticDefaultImports": true
   },
   "include": [
-    "src/**/*.json",
+    "src/**/*.ts",
+    "src/**/*.d.ts",
     "src/**/*.vue",
-    "src/**/*.ts"
+    "src/**/*.json",
+    "vite.config.ts"
   ]
 }

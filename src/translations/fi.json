@@ -20,5 +20,8 @@
   "active": "avoin",
   "potential": "mahdollinen",
   "failed": "epäonnistunut",
-  "completed": "valmis"
+  "completed": "valmis",
+  "sessionRestored": "Avoimen istunnon palautus onnistui",
+  "sessionExpired": "Nykyinen istunto on vanhentunut, ole hyvä ja kirjaudu sisään uudelleen",
+  "loginPrompt": "Kirjaudu WebID:llä"
 }

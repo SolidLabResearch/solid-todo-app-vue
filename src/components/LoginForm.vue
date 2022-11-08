@@ -1,11 +1,15 @@
 <script setup lang="ts">
-import { ref, Ref } from 'vue'
-import { login, getWebID, defaultWebId, error, translations } from '../logic'
-import LanguageSelector from './LanguageSelector.vue'
+import { type Ref, ref } from 'vue'
+import { login } from '../logic/session'
+import { getWebID } from '../logic/queries'
+import { defaultWebId } from '../logic/utils'
+import { error } from '../logic/notifications'
+import { translations } from '../logic/language'
 
 const webIdUrl: Ref<string> = ref(defaultWebId)
 
-function loginHandler(): void {
+function loginHandler(event: Event): void {
+  event.preventDefault()
   getWebID(webIdUrl.value)
     .then((webId) => login(webId.oidcIssuer, translations.value.appName))
     .catch((reason: any) => error(reason))
@@ -13,13 +17,10 @@ function loginHandler(): void {
 </script>
 
 <template>
-  <header class="flex flex-row fixed right-0 top-0">
-    <LanguageSelector />
-  </header>
-  <main class="bg-white flex flex-col m-auto w-1/5 p-8 gap-y-4">
-    <img src="/solid.svg" class="w-14 h-auto mx-auto" />
-    <h2 class="uppercase text-lg text-center">{{ translations.appName }}</h2>
-    <input type="text" :placeholder="translations.webId" v-model="webIdUrl" class="py-1 px-2 border border-gray-400" />
-    <button @click="loginHandler" class="py-1 px-2 text-white bg-royallavender hover:bg-black">{{ translations.login }}</button>
-  </main>
+  <form class="flex flex-col m-auto w-1/4 gap-4 py-10 px-14 bg-background shadow-md">
+    <img src="/solid.svg" class="w-10 h-10 m-auto" />
+    <h2 class="text-lg uppercase text-center">{{ translations.appName }}</h2>
+    <input type="text" id="webid" :placeholder="translations.webId" v-model="webIdUrl" class="py-1 px-2 border-b border-foreground text-center" />
+    <input type="submit" @click="loginHandler" class="py-1 px-2 text-background lowercase bg-foreground cursor-pointer hover:bg-accent" :value="translations.login" />
+  </form>
 </template>

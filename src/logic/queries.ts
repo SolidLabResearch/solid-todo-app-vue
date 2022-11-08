@@ -1,15 +1,16 @@
 import { session } from './session'
 import { find, findOne, update } from './engine'
-import { type ITaskList, type ITask, type IWebID, defaultTaskPath, taskStatusValues, identifierFromName } from './model'
+import { type ITaskList, type ITask, type IWebID } from './model'
+import { defaultTaskPath, taskStatusValues, identifierFromName } from './utils'
 
 const prefixes: string = `
-  PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-  PREFIX solid: <http://www.w3.org/ns/solid/terms#>
-  PREFIX schema: <http://schema.org/>
-  PREFIX pim: <http://www.w3.org/ns/pim/space#>
-  PREFIX ex: <http://example.org/>
-  PREFIX acl: <http://www.w3.org/ns/auth/acl#>
-  PREFIX todo: <http://example.org/todolist/>
+    PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+    PREFIX solid: <http://www.w3.org/ns/solid/terms#>
+    PREFIX schema: <http://schema.org/>
+    PREFIX pim: <http://www.w3.org/ns/pim/space#>
+    PREFIX ex: <http://example.org/>
+    PREFIX acl: <http://www.w3.org/ns/auth/acl#>
+    PREFIX todo: <http://example.org/todolist/>
 `
 
 const taskListClasses: string = 'todo:TaskList'
@@ -31,69 +32,62 @@ async function getWebID(webId?: string): Promise<IWebID> {
       OPTIONAL { ?id todo:pathTemplate ?pathTemplate } .
     }
   `
-  return await findOne<IWebID>(query, session, webIdValue)
+  return await findOne<IWebID>(query, webIdValue)
 }
 
 async function getStoragePath(taskListName?: string, taskName?: string): Promise<URL> {
   const webId: IWebID = await getWebID()
+  const time: Date = new Date()
 
-  let path: string = new URL(defaultTaskPath, webId.storage ?? webId.id).href
+  const path: string = (webId.pathTemplate ?? defaultTaskPath)
+    .replaceAll('{year}', time.getUTCFullYear().toString())
+    .replaceAll('{month}', time.getUTCMonth().toString())
+    .replaceAll('{date}', time.getUTCDate().toString())
+    .replaceAll('{timenow}', Date.now().toString())
+    .replaceAll('{storage}', webId.storage?.replace(/\/$/, '') ?? '')
+    .replaceAll('{tasklist}', taskListName != null ? identifierFromName(taskListName) : '')
+    .replaceAll('{task}', taskName != null ? identifierFromName(taskName) : '')
+    .replaceAll('//', '/')
+    .replace(/^\//, '')
 
-  if (webId.pathTemplate != null) {
-    const time: Date = new Date()
+  const pathBase: string | undefined = path.startsWith('http') ? undefined : webId.storage ?? webId.id.href
+  const storagePath = new URL(path, pathBase)
 
-    path = webId.pathTemplate
-      .replace('{year}', time.getUTCFullYear().toString())
-      .replace('{month}', time.getUTCMonth().toString())
-      .replace('{date}', time.getUTCDate().toString())
-      .replace('{storage}', webId.storage?.replace(/\/$/, '') ?? '')
-      .replace('{tasklist}', taskListName != null ? identifierFromName(taskListName) : '')
-      .replace('{task}', taskName != null ? identifierFromName(taskName) : '')
-
-    // removes duplicate slashes in the middle
-    while (path.includes('//')) {
-      path = path.replace('//', '/')
-    }
-
-    path = path.replace('http:/', 'http://').replace('https:/', 'https://') // fixes the first double slash :d
-  }
-
-  return new URL(path)
+  return storagePath
 }
 
 /** Creating */
 
-async function create(classes: string, url: URL, id: string | undefined, predicateValues: Record<string, string>): Promise<void> {
-  const actualId: string = id == null ? '' : `#${id}`
-
-  const predicateData: string = Object.entries(predicateValues).map(([predicate, value]) => `<${actualId}> ${predicate} ${value} .`).join('\n')
+async function create(classes: string, url: URL, id: string, predicateValues: Record<string, string>): Promise<void> {
+  const predicateData: string = Object.entries(predicateValues).map(([predicate, value]) => `${predicate} ${value}`).join(' ;\n        ')
 
   const dataQuery: string = `
     ${prefixes}
 
     INSERT DATA {
-      <${actualId}> a ${classes} .
-      ${predicateData}
+      <#${id}> a ${classes} ;
+        ${predicateData} .
     }
   `
-  await update(dataQuery, session, url)
+  console.log(dataQuery)
+  await update(dataQuery, url)
 
   const accessQuery: string = `
     ${prefixes}
 
     INSERT DATA {
-      <#owner> a acl:Authorization .
-      <#owner> acl:agent <${session.info.webId as string}> .
-      <#owner> acl:accessTo <${url.href}> .
-      <#owner> acl:mode acl:Read, acl:Write, acl:Control .
+      <#owner> a acl:Authorization ;
+        acl:agent <${session.info.webId as string}> ;
+        acl:accessTo <${url.href}> ;
+        acl:mode acl:Read, acl:Write, acl:Control .
     }
   `
 
-  await update(accessQuery, session, new URL(`${url.href}.acl`))
+  await update(accessQuery, new URL(`${url.href}.acl`))
 }
 
 async function createTask(taskList: ITaskList, name: string): Promise<void> {
-  const id: string = identifierFromName(name)
+  const id: string = Date.now().toString()
   const path: URL = await getStoragePath(taskList.name, name)
   const date: Date = new Date()
   const predicateValues: Record<string, string> = {
@@ -108,6 +102,7 @@ async function createTask(taskList: ITaskList, name: string): Promise<void> {
 }
 
 async function createTaskList(name: string): Promise<void> {
+  const id: string = Date.now().toString()
   const path: URL = await getStoragePath(name)
   const date: Date = new Date()
   const predicateValues: Record<string, string> = {
@@ -116,7 +111,7 @@ async function createTaskList(name: string): Promise<void> {
     'todo:dateCreated': `"${date.toISOString()}"`,
     'todo:dateModified': `"${date.toISOString()}"`
   }
-  return await create(taskListClasses, path, undefined, predicateValues)
+  return await create(taskListClasses, path, id, predicateValues)
 }
 
 /** Removing */
@@ -131,7 +126,7 @@ async function remove(classes: string, id: URL): Promise<void> {
     }
   `
 
-  await update(dataQuery, session, id)
+  await update(dataQuery, id)
 
   /*
   The code here works, but is left commented and unused because removing the ACL entries
@@ -151,7 +146,7 @@ async function remove(classes: string, id: URL): Promise<void> {
     }
   `
 
-  await update(aclQuery, session, new URL(`${id}.acl`))
+  await update(aclQuery, new URL(`${id}.acl`))
   */
 }
 
@@ -185,7 +180,9 @@ async function save(classes: string, id: URL, predicateValues: Record<string, st
     }
   `)
 
-  await Promise.all(individualQueries.map(async (query) => await update(query, session, id)))
+  console.log(individualQueries)
+
+  await Promise.all(individualQueries.map(async (query) => await update(query, id)))
 }
 
 async function saveTask(taskList: ITaskList, task: ITask): Promise<void> {
@@ -229,7 +226,8 @@ async function getTasks(taskList: ITaskList): Promise<ITask[]> {
       OPTIONAL { ?id todo:description ?description } .
     }
   `
-  const tasks: ITask[] = await find<ITask>(query, session, new URL(session.info.webId as string))
+  const webId: IWebID = await getWebID()
+  const tasks: ITask[] = await find<ITask>(query, new URL(webId.storage != null ? webId.id : new URL('..', webId.id)))
   tasks.sort((a, b) => a.name.localeCompare(b.name))
   return tasks
 }
@@ -247,7 +245,8 @@ async function getTaskLists(): Promise<ITaskList[]> {
       OPTIONAL { ?id todo:description ?description } .
     }
   `
-  const taskLists: ITaskList[] = await find<ITaskList>(query, session, new URL(session.info.webId as string))
+  const webId: IWebID = await getWebID()
+  const taskLists: ITaskList[] = await find<ITaskList>(query, new URL(webId.storage != null ? webId.id : new URL('..', webId.id)))
   taskLists.sort((a, b) => a.name.localeCompare(b.name))
   return taskLists
 }

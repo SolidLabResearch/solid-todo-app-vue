@@ -2,5 +2,6 @@ dist/
 node_modules/
 server-data/
 oldstuff/
+*.log
 .eslintcache
 *.tsbuildinfo

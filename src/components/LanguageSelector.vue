@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { availableLanguages, language, setLanguage } from '../logic'
+import { availableLanguages, language, setLanguage } from '../logic/language'
 
 function handleLanguageChange(event: Event): void {
   const languageSelector: HTMLSelectElement = event.target as HTMLSelectElement

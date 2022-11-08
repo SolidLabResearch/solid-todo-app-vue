@@ -1,11 +1,15 @@
 <script setup lang="ts">
 import { type Ref, ref } from 'vue'
-import { type ITaskList, getTaskLists, createTaskList, removeTaskList, saveTaskList, translations, confirmation, error } from '../logic'
+import { type ITaskList } from '../logic/model'
+import { getTaskLists, createTaskList, removeTaskList, saveTaskList } from '../logic/queries'
+import { translations } from '../logic/language'
+import { confirmation, error } from '../logic/notifications'
+
 import AccountMenu from './AccountMenu.vue'
 import TaskList from './TaskList.vue'
 import CreateEntryForm from './CreateEntryForm.vue'
 
-const taskLists: Ref<ITaskList[]> = ref(await getTaskLists())
+const taskLists: Ref<ITaskList[]> = ref([])
 const busy: Ref<boolean> = ref(false)
 
 async function createTaskListWrapper(name: string): Promise<void> {
@@ -45,19 +49,23 @@ function removeHandler(list: ITaskList): void {
     .then(() => confirmation(`${translations.value.deleteSuccess}: ${list.name}`))
     .catch(error)
 }
+
+getTaskLists()
+  .then((lists: ITaskList[]) => { taskLists.value = lists })
+  .catch((reason) => error(reason))
 </script>
 
 <template>
-  <header class="flex flex-row items-center py-4 px-8 bg-white shadow-md">
-    <img src="/solid.svg" class="h-8 mr-3">
-    <h1 class="text-solidblue text-lg uppercase mr-auto">{{ translations.appName }}</h1>
+  <header class="flex flex-row items-center py-4 px-8 z-10 bg-background shadow-lg">
+    <img src="/solid.svg" class="h-8 w-8 mr-3">
+    <h1 class="text-lg uppercase mr-auto">{{ translations.appName }}</h1>
     <AccountMenu />
   </header>
   <main class="flex flex-col flex-grow my-4 mx-8 gap-2">
-    <CreateEntryForm :create-handler="createHandler" :busy="busy" class="p-2 bg-white" />
+    <CreateEntryForm :create-handler="createHandler" :busy="busy" />
     <TaskList v-for="list in taskLists" v-bind:key="list.id.href" :list="list" :remove-handler="removeHandler" :save-handler="saveHandler" />
   </main>
-  <footer class="mt-auto bg-solidblue p-8">
-    <p class="m-auto text-geysergrey text-center">{{ translations.footerText }}</p>
+  <footer class="mt-auto bg-foreground p-12">
+    <p class="m-auto text-center text-background">{{ translations.footerText }}</p>
   </footer>
 </template>

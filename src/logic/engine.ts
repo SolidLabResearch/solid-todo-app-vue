@@ -1,7 +1,8 @@
 import { QueryEngine } from '@comunica/query-sparql-link-traversal-solid'
 import { ActorHttpInruptSolidClientAuthn } from '@comunica/actor-http-inrupt-solid-client-authn'
 import { Bindings, BindingsStream, QueryStringContext } from '@comunica/types'
-import { fetch as inruptFetch, Session } from '@inrupt/solid-client-authn-browser'
+import { fetch as inruptFetch } from '@inrupt/solid-client-authn-browser'
+import { session } from './session'
 
 const queryEngine: QueryEngine = new QueryEngine()
 
@@ -18,7 +19,7 @@ function fetchWithoutCache(hostname: string): FetchFunction {
   }
 }
 
-function context(session: Session, url?: URL): QueryStringContext {
+function context(url?: URL): QueryStringContext {
   return {
     sources: [url?.href ?? session.info.webId as string],
     lenient: true,
@@ -28,10 +29,10 @@ function context(session: Session, url?: URL): QueryStringContext {
   }
 }
 
-async function find<T>(query: string, session: Session, url?: URL): Promise<T[]> {
+async function find<T>(query: string, url?: URL): Promise<T[]> {
   return await new Promise<T[]>((resolve, reject) => {
     queryEngine.invalidateHttpCache().then(() => { // invalidates everything every time, needs to be fixed
-      queryEngine.queryBindings(query, context(session, url))
+      queryEngine.queryBindings(query, context(url))
         .then((bindingsStream: BindingsStream) => {
           const output: Map<string, Record<string, string | URL>> = new Map<string, Record<string, string>>()
           bindingsStream.on('data', (bindings: Bindings) => {
@@ -52,13 +53,14 @@ async function find<T>(query: string, session: Session, url?: URL): Promise<T[]>
   })
 }
 
-async function findOne<T>(query: string, session: Session, url?: URL): Promise<T> {
-  const results: T[] = await find<T>(query, session, url)
+async function findOne<T>(query: string, url?: URL): Promise<T> {
+  const results: T[] = await find<T>(query, url)
   return results[0]
 }
 
-async function update(query: string, session: Session, url: URL): Promise<void> {
-  await queryEngine.queryVoid(query, context(session, url))
+async function update(query: string, url: URL): Promise<void> {
+  await queryEngine.queryVoid(query, context(url))
+  await queryEngine.invalidateHttpCache()
 }
 
 export { find, findOne, update }

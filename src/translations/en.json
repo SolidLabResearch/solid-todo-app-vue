@@ -20,5 +20,8 @@
   "active": "active",
   "potential": "potential",
   "failed": "failed",
-  "completed": "completed"
+  "completed": "completed",
+  "sessionRestored": "Successfully restored previous session",
+  "sessionExpired": "The session has expired, please log in again",
+  "loginPrompt": "Log in with a WebID"
 }
