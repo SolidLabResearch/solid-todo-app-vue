@@ -69,7 +69,6 @@ async function create(classes: string, url: URL, id: string, predicateValues: Re
         ${predicateData} .
     }
   `
-  console.log(dataQuery)
   await update(dataQuery, url)
 
   const accessQuery: string = `
@@ -82,7 +81,6 @@ async function create(classes: string, url: URL, id: string, predicateValues: Re
         acl:mode acl:Read, acl:Write, acl:Control .
     }
   `
-
   await update(accessQuery, new URL(`${url.href}.acl`))
 }
 
@@ -179,8 +177,6 @@ async function save(classes: string, id: URL, predicateValues: Record<string, st
       FILTER ( ?value != ${value} )
     }
   `)
-
-  console.log(individualQueries)
 
   await Promise.all(individualQueries.map(async (query) => await update(query, id)))
 }
