@@ -34,7 +34,7 @@ module.exports = {
         exclude: /node_modules/,
         loader: 'file-loader',
         options: {
-          name: '[name][contenthash:8].[ext]'
+          name: '[name].[contenthash:8].[ext]'
         }
       },
       {

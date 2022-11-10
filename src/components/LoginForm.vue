@@ -18,7 +18,7 @@ function loginHandler(event: Event): void {
 
 <template>
   <form class="flex flex-col m-auto w-1/4 gap-4 py-10 px-14 bg-background shadow-md">
-    <img src="/solid.svg" class="w-10 h-10 m-auto" />
+    <img src="../../public/solid.svg" class="w-10 h-10 m-auto" />
     <h2 class="text-lg uppercase text-center">{{ translations.appName }}</h2>
     <input type="text" id="webid" :placeholder="translations.webId" v-model="webIdUrl" class="py-1 px-2 border-b border-foreground text-center" />
     <input type="submit" @click="loginHandler" class="py-1 px-2 text-background lowercase bg-foreground cursor-pointer hover:bg-accent" :value="translations.login" />
