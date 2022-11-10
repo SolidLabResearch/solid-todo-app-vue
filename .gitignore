@@ -1,7 +1,10 @@
 dist/
 node_modules/
-server-data/
-oldstuff/
-*.log
+
 .eslintcache
+
+*.log
 *.tsbuildinfo
+
+src/**/*.d.ts
+src/**/*.js

@@ -22,8 +22,10 @@ jobs:
       run: yarn install --frozen-lockfile --ignore-engines
     - name: Run ESLint
       run: yarn run lint
-    - name: Build with Vite
+    - name: Build with Webpack
       run: yarn run build
+      env:
+        TODO_APP_ROOT: /solid-todo-app-vue/
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v1
       if: success() && github.ref == 'refs/heads/main'

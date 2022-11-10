@@ -8,13 +8,13 @@
     "jsx": "preserve",
     "resolveJsonModule": true,
     "isolatedModules": true,
+    "noImplicitAny": false,
     "esModuleInterop": true,
     "lib": [
       "ESNext",
       "DOM"
     ],
     "skipLibCheck": true,
-    "noEmit": true,
     "composite": true,
     "allowSyntheticDefaultImports": true
   },
@@ -23,6 +23,6 @@
     "src/**/*.d.ts",
     "src/**/*.vue",
     "src/**/*.json",
-    "vite.config.ts"
+    "webpack.config.cjs"
   ]
 }

@@ -5,7 +5,7 @@ This is an experimental to-do list application built on top of Solid, in an effo
 The prototype uses:
 
 * [Vue](https://vuejs.org/) for the user interface
-* [Vite](https://vitejs.dev/) for development, building, bundling (might need to be changed, investigation pending)
+* [Webpack](https://webpack.js.org/) for development server, building, bundling
 * [Comunica with link traversal](https://github.com/comunica/comunica-feature-link-traversal) for reading and writing data
 * [Small custom vocabulary](https://github.com/SolidLabResearch/solid-todo-app-react/tree/main/ontology) for describing the data
 * The data can be stored in a Solid pod, for example using the [Community Solid Server](https://github.com/CommunitySolidServer/CommunitySolidServer)
@@ -18,13 +18,12 @@ Thus far, the prototype offers the following functionality:
 
 The prototype also allows customising the storage paths for newly-created to-do lists and entries:
 
-* Default without `pim:storage` present is `private/todosnew/todos.ttl` under the path that contains the WebID, and it is this way to match the React prototype
-* Default with `pim:storage` present is `private/todosnew/todos.ttl` under the path pointed at by `pim:storage`
-* The `http://example.org/todolist/pathTemplate` predicate can be used to define a custom path, for example `http://somepod.example.com/todos/{tasklist}`, with the following templates available to use in the string: `year`, `month`, `date`, `timenow`, `tasklist`, `task`, `storage`
+* Default without `pim:storage` present is `private/todos/todos` under the path that contains the WebID, and it is this way to match the React prototype
+* Default with `pim:storage` present is `private/todos/todos` under the path pointed at by `pim:storage`
+* The `http://example.org/todolist/pathTemplate` predicate can be used to define a custom path, for example `{storage}/tasks/{tasklist}`, with the following templates available to use in the string: `year`, `month`, `date`, `timenow`, `tasklist`, `task`, `storage`
 
 The usual commands are available:
 
 * `yarn run dev` for local development
 * `yarn run lint` for ESLint
 * `yarn run build` for bundling for production
-* `yarn run preview` for previewing production bundle
