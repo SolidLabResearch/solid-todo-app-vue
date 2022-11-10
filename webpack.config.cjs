@@ -30,14 +30,6 @@ module.exports = {
         }
       },
       {
-        test: /\.(eot|ttf|woff|woff2|png|jpe?g|gif|webm|mp4|svg)$/,
-        exclude: /node_modules/,
-        loader: 'file-loader',
-        options: {
-          name: '[name].[contenthash:8].[ext]'
-        }
-      },
-      {
         test: /\.css$/,
         exclude: /node_modules/,
         use: [

@@ -8,6 +8,7 @@ import { confirmation, error } from '../logic/notifications'
 import AccountMenu from './AccountMenu.vue'
 import TaskList from './TaskList.vue'
 import CreateEntryForm from './CreateEntryForm.vue'
+import SolidIcon from './SolidIcon.vue'
 
 const taskLists: Ref<ITaskList[]> = ref([])
 const busy: Ref<boolean> = ref(false)
@@ -57,7 +58,7 @@ getTaskLists()
 
 <template>
   <header class="flex flex-row items-center py-4 px-8 z-10 bg-background shadow-lg">
-    <img src="/solid.svg" class="h-8 w-8 mr-3">
+    <SolidIcon class="h-8 w-8 mr-3" />
     <h1 class="text-lg uppercase mr-auto">{{ translations.appName }}</h1>
     <AccountMenu />
   </header>
