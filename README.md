@@ -36,7 +36,7 @@ Examples of different storage strategies that can be implemented with the templa
 
 ## Development setup
 
-The project uses [Yarn]() for package management, and offers the usual commands:
+The project uses [Yarn](https://yarnpkg.com/) for package management, and offers the usual commands:
 
 * `yarn run dev` for local development
 * `yarn run lint` for ESLint
