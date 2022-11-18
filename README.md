@@ -1,6 +1,6 @@
 # Solid Tasks
 
-This is an experimental to-do list application built on top of Solid, in an effort to identify challenges related to developing interoperable applications on top of Solid. This is **not intended for actual use** in any capacity whatsoever, and exists as a technical prototype. There is a live version [available](https://solidlabresearch.github.io/solid-todo-app-vue/) published on GitHib Pages from the main branch.
+This is an experimental to-do list application built on top of Solid, in an effort to identify challenges related to developing interoperable applications on top of Solid. This is **not intended for actual use** in any capacity whatsoever, and exists as a technical prototype. There is a live version [available](https://solidlabresearch.github.io/solid-todo-app-vue/) published on GitHub Pages from the main branch.
 
 ## Dependencies
 
