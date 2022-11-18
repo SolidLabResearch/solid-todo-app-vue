@@ -184,12 +184,12 @@ async function save(classes: string, id: URL, predicateValues: Record<string, st
 async function saveTask(taskList: ITaskList, task: ITask): Promise<void> {
   const predicateValues: Record<string, string> = {
     'todo:title': `"${task.name}"`,
-    'todo:description': `"${task.description}"`,
+    'todo:description': `"${task.description ?? ''}"`,
     'todo:isPartOf': `<${taskList.id.href}>`,
     'todo:createdBy': `<${session.info.webId as string}>`,
     'todo:dateCreated': `"${task.created ?? new Date().toISOString()}"`,
     'todo:dateModified': `"${new Date().toISOString()}"`,
-    'todo:actionStatus': `<${task.status}>`
+    'todo:actionStatus': `<${task.status ?? taskStatusValues[0]}>`
   }
   return await save(taskClasses, task.id, predicateValues)
 }
@@ -197,7 +197,7 @@ async function saveTask(taskList: ITaskList, task: ITask): Promise<void> {
 async function saveTaskList(taskList: ITaskList): Promise<void> {
   const predicateValues: Record<string, string> = {
     'todo:title': `"${taskList.name}"`,
-    'todo:description': `"${taskList.description}"`,
+    'todo:description': `"${taskList.description ?? ''}"`,
     'todo:createdBy': `<${session.info.webId as string}>`,
     'todo:dateCreated': `"${taskList.created ?? new Date().toISOString()}"`,
     'todo:dateModified': `"${new Date().toISOString()}"`
