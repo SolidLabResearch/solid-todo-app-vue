@@ -1,20 +1,20 @@
 interface ITask {
   id: URL
   name: string
-  creator: string
-  created: string
-  modified: string
-  status: string
-  description: string
+  creator?: string
+  created?: string
+  modified?: string
+  status?: string
+  description?: string
 }
 
 interface ITaskList {
   id: URL
   name: string
-  creator: string
-  created: string
-  modified: string
-  description: string
+  creator?: string
+  created?: string
+  modified?: string
+  description?: string
 }
 
 interface IWebID {
