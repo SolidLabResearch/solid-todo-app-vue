@@ -21,6 +21,11 @@ The prototype also allows customising the storage paths for newly-created to-do 
 * Default without `pim:storage` present is `private/todos/todos` under the path that contains the WebID, and it is this way to match the React prototype
 * Default with `pim:storage` present is `private/todos/todos` under the path pointed at by `pim:storage`
 * The `http://example.org/todolist/pathTemplate` predicate can be used to define a custom path, for example `{storage}/tasks/{tasklist}`, with the following templates available to use in the string: `year`, `month`, `date`, `timenow`, `tasklist`, `task`, `storage`
+* Examples of different storage strategies that can be implemented with the template:
+    * All tasks in single file: `{storage}/tasks/singlefile`
+    * All lists in different files: `{storage}/tasks/{tasklist}`
+    * All individual tasks in different files: `{storage}/tasks/{tasklist}/{task}`
+    * All tasks for one year in their own file: `{storage}/tasks/{year}`
 
 The usual commands are available:
 
