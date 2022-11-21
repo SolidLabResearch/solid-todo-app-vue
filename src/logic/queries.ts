@@ -6,13 +6,14 @@ import { defaultTaskPath, taskStatusValues, identifierFromName } from './utils'
 const prefixes: string = `
     PREFIX foaf: <http://xmlns.com/foaf/0.1/>
     PREFIX solid: <http://www.w3.org/ns/solid/terms#>
-    PREFIX schema: <http://schema.org/>
     PREFIX pim: <http://www.w3.org/ns/pim/space#>
     PREFIX ex: <http://example.org/>
     PREFIX acl: <http://www.w3.org/ns/auth/acl#>
     PREFIX todo: <http://example.org/todolist/>
 `
 
+const useDefaultTaskList: boolean = false
+const defaultTaskListId: string = 'todo:defaultTaskList'
 const taskListClasses: string = 'todo:TaskList'
 const taskClasses: string = 'todo:Task'
 
@@ -94,7 +95,7 @@ async function createTask(taskList: ITaskList, name: string): Promise<void> {
     'todo:createdBy': `<${session.info.webId as string}>`,
     'todo:dateCreated': `"${date.toISOString()}"`,
     'todo:dateModified': `"${date.toISOString()}"`,
-    'todo:actionStatus': `<${taskStatusValues[0]}>`
+    'todo:status': `"${taskStatusValues[0]}"`
   }
   return await create(taskClasses, path, id, predicateValues)
 }
@@ -174,10 +175,9 @@ async function save(classes: string, id: URL, predicateValues: Record<string, st
       ?id a ${classes} .
       FILTER ( ?id = <${id.href}> ) .
       ?id ${predicate} ?value .
-      FILTER ( ?value != ${value} )
+      FILTER ( ?value != ${value} ) .
     }
   `)
-
   await Promise.all(individualQueries.map(async (query) => await update(query, id)))
 }
 
@@ -189,7 +189,7 @@ async function saveTask(taskList: ITaskList, task: ITask): Promise<void> {
     'todo:createdBy': `<${session.info.webId as string}>`,
     'todo:dateCreated': `"${task.created ?? new Date().toISOString()}"`,
     'todo:dateModified': `"${new Date().toISOString()}"`,
-    'todo:actionStatus': `<${task.status ?? taskStatusValues[0]}>`
+    'todo:status': `"${task.status ?? taskStatusValues[0]}"`
   }
   return await save(taskClasses, task.id, predicateValues)
 }
@@ -207,18 +207,24 @@ async function saveTaskList(taskList: ITaskList): Promise<void> {
 
 /** Retrieval */
 
-async function getTasks(taskList: ITaskList): Promise<ITask[]> {
+async function getTasks(taskList?: ITaskList): Promise<ITask[]> {
+  const listMembership = taskList != null
+    ? `?id todo:isPartOf <${taskList.id.href}> .`
+    : useDefaultTaskList
+      ? `?id todo:isPartOf <${defaultTaskListId}> .`
+      : ''
+
   const query: string = `
     ${prefixes}
 
     SELECT * WHERE {
       ?id a ${taskClasses} .
-      ?id todo:isPartOf <${taskList.id.href}> .
+      ${listMembership}
       ?id todo:title ?name .
       OPTIONAL { ?id todo:createdBy ?creator } .
       OPTIONAL { ?id todo:dateCreated ?created } .
       OPTIONAL { ?id todo:dateModified ?modified } .
-      OPTIONAL { ?id todo:actionStatus ?status } .
+      OPTIONAL { ?id todo:status ?status } .
       OPTIONAL { ?id todo:description ?description } .
     }
   `

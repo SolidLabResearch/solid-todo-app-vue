@@ -7,6 +7,7 @@ import { confirmation, error } from '../logic/notifications'
 
 import AccountMenu from './AccountMenu.vue'
 import TaskList from './TaskList.vue'
+import TaskListDefault from './TaskListDefault.vue'
 import CreateEntryForm from './CreateEntryForm.vue'
 import SolidIcon from './SolidIcon.vue'
 
@@ -65,6 +66,7 @@ getTaskLists()
   <main class="flex flex-col flex-grow my-4 mx-8 gap-2">
     <CreateEntryForm :create-handler="createHandler" :busy="busy" :placeholder="translations.newTaskList" />
     <TaskList v-for="list in taskLists" v-bind:key="list.id.href" :list="list" :remove-handler="removeHandler" :save-handler="saveHandler" />
+    <TaskListDefault />
   </main>
   <footer class="mt-auto bg-foreground p-12">
     <p class="m-auto text-center text-background">{{ translations.footerText }}</p>
