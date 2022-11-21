@@ -63,7 +63,7 @@ getTaskLists()
     <AccountMenu />
   </header>
   <main class="flex flex-col flex-grow my-4 mx-8 gap-2">
-    <CreateEntryForm :create-handler="createHandler" :busy="busy" />
+    <CreateEntryForm :create-handler="createHandler" :busy="busy" :placeholder="translations.newTaskList" />
     <TaskList v-for="list in taskLists" v-bind:key="list.id.href" :list="list" :remove-handler="removeHandler" :save-handler="saveHandler" />
   </main>
   <footer class="mt-auto bg-foreground p-12">

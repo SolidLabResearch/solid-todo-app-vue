@@ -87,7 +87,7 @@ function removeTaskHandler(task: ITask): void {
       <p v-if="list.modified" class="col-span-4 text-muffled text-sm" id="{{ list.id }}#modified">{{ list.modified }}</p>
     </div>
     <div v-if="showEntries" class="flex flex-col gap-2 p-2">
-      <CreateEntryForm :create-handler="createTaskHandler" :busy="busy" class="py-1 px-2 bg-white" />
+      <CreateEntryForm :create-handler="createTaskHandler" :busy="busy" :placeholder="translations.newTask" class="py-1 px-2 bg-white" />
       <TaskListItem v-for="task in tasks" v-bind:key="task.id.href" :list="list" :task="task" :remove-handler="removeTaskHandler" :save-handler="saveTaskHandler" class="py-1 px-2 bg-white" />
     </div>
   </div>

@@ -8,6 +8,8 @@
   "footerText": "Yay!",
   "id": "id",
   "name": "name",
+  "newTaskList": "new tasklist",
+  "newTask": "new task",
   "creator": "creator",
   "created": "created",
   "modified": "modified",

@@ -8,6 +8,8 @@
   "footerText": "Jeeeeees!",
   "id": "id",
   "name": "nimi",
+  "newTaskList": "uusi tehtävälista",
+  "newTask": "uusi tehtävä",
   "creator": "luoja",
   "created": "luotu",
   "modified": "muokattu",

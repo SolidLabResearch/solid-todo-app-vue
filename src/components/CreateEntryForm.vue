@@ -7,7 +7,8 @@ import ProgressIndicator from './ProgressIndicator.vue'
 
 const props = defineProps({
   createHandler: { type: Function, required: true },
-  busy: { type: Boolean, required: true }
+  busy: { type: Boolean, required: true },
+  placeholder: { type: String, required: true }
 })
 
 const name: Ref<string> = ref('')
@@ -21,7 +22,7 @@ function createHandlerWrapper(): void {
 <template>
   <ProgressIndicator class="p-2" icon="arrow" :text="translations.wait" v-if="busy" />
   <form v-else class="flex flex-row p-2 bg-background">
-    <input class="flex-grow" v-model="name" type="text" :placeholder="translations.name" minlength="1" />
+    <input class="flex-grow" v-model="name" type="text" :placeholder="placeholder" minlength="1" />
     <SubmitButton icon="add" @click="createHandlerWrapper" />
   </form>
 </template>
