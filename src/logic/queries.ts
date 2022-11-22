@@ -12,8 +12,6 @@ const prefixes: string = `
     PREFIX todo: <http://example.org/todolist/>
 `
 
-const useDefaultTaskList: boolean = false
-const defaultTaskListId: string = 'todo:defaultTaskList'
 const taskListClasses: string = 'todo:TaskList'
 const taskClasses: string = 'todo:Task'
 
@@ -210,9 +208,10 @@ async function saveTaskList(taskList: ITaskList): Promise<void> {
 async function getTasks(taskList?: ITaskList): Promise<ITask[]> {
   const listMembership = taskList != null
     ? `?id todo:isPartOf <${taskList.id.href}> .`
-    : useDefaultTaskList
-      ? `?id todo:isPartOf <${defaultTaskListId}> .`
-      : ''
+    : `?id todo:isPartOf [
+        a todo:Task;
+        todo:title "DefaultTaskList"
+      ] .`
 
   const query: string = `
     ${prefixes}

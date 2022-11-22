@@ -28,9 +28,6 @@ function toggleItems(event?: Event): void {
       <input type="text" v-model="translations.defaultTaskList" class="flex-grow font-semibold text-gray-400" :placeholder="translations.name" disabled />
       <SubmitButton icon="toggle" @click="toggleItems" :toggle="showEntries" />
     </form>
-    <div v-if="showEntries" class="flex flex-row bg-white mt-2 ml-2 mr-2 p-2">
-        <p class="text-gray-400">{{ translations.defaultTaskListDescription }}</p>
-    </div>
     <div v-if="showEntries" class="flex flex-col gap-2 p-2">
       <TaskListItem v-for="task in tasks" v-bind:key="task.id.href" :task="task" class="py-1 px-2 bg-white" />
     </div>

@@ -11,7 +11,6 @@
   "newTaskList": "uusi tehtävälista",
   "newTask": "uusi tehtävä",
   "defaultTaskList": "Oletustehtävälista",
-  "defaultTaskListDescription": "Tämä on oletuslista johon kerätään kaikki tehtävät joita ei ole merkitty osaksi tiettyä tehtävälistaa, esimerkiksi tehtävälistojenhallintaa tukemattomien sovellusten luomat tehtävät.",
   "creator": "luoja",
   "created": "luotu",
   "modified": "muokattu",
