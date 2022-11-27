@@ -17,7 +17,7 @@ const taskClasses: string = 'todo:Task'
 
 /** Retrieval of specific entries */
 
-async function getWebID(webId?: string): Promise<IWebID> {
+async function getWebId(webId?: string): Promise<IWebID> {
   const webIdValue: string = webId ?? session.info.webId as string
   const query: string = `
     ${prefixes}
@@ -34,7 +34,7 @@ async function getWebID(webId?: string): Promise<IWebID> {
 }
 
 async function getStoragePath(taskListName?: string, taskName?: string): Promise<string> {
-  const webId: IWebID = await getWebID()
+  const webId: IWebID = await getWebId()
   const time: Date = new Date()
 
   const path: string = (webId.pathTemplate ?? defaultTaskPath)
@@ -219,7 +219,7 @@ async function getTasks(taskList: ITaskList): Promise<ITask[]> {
       OPTIONAL { ?id todo:description ?description } .
     }
   `
-  const webId: IWebID = await getWebID()
+  const webId: IWebID = await getWebId()
   const tasks: ITask[] = await find<ITask>(query, webId.storage != null ? webId.id : new URL('..', webId.id).href)
   tasks.sort((a, b) => a.title.localeCompare(b.title))
   return tasks
@@ -238,10 +238,10 @@ async function getTaskLists(): Promise<ITaskList[]> {
       OPTIONAL { ?id todo:description ?description } .
     }
   `
-  const webId: IWebID = await getWebID()
+  const webId: IWebID = await getWebId()
   const taskLists: ITaskList[] = await find<ITaskList>(query, webId.storage != null ? webId.id : new URL('..', webId.id).href)
   taskLists.sort((a, b) => a.title.localeCompare(b.title))
   return taskLists
 }
 
-export { getTaskLists, createTaskList, saveTaskList, removeTaskList, getTasks, createTask, saveTask, removeTask, getWebID }
+export { getTaskLists, createTaskList, saveTaskList, removeTaskList, getTasks, createTask, saveTask, removeTask, getWebId }
