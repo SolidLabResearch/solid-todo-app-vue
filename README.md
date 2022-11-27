@@ -1,6 +1,11 @@
-# Solid Tasks
+<h1 align="center">
+    <img src="./public/icon.svg" alt="icon"><br>
+    Solid Tasks
+</h1>
 
-This is an experimental to-do list application built on top of Solid, in an effort to identify challenges related to developing interoperable applications on top of Solid. This is **not intended for actual use** in any capacity whatsoever, and exists as a technical prototype. There is a live version [available](https://solidlabresearch.github.io/solid-todo-app-vue/) published on GitHub Pages from the main branch.
+This is an experimental to-do list application built on top of Solid, in an effort to identify challenges related to developing interoperable applications on top of Solid. This is **not intended for actual use** in any capacity whatsoever, and exists as a technical prototype.
+
+There is a live version [available](https://solidlabresearch.github.io/solid-todo-app-vue/) published on GitHub Pages from the main branch.
 
 ## Dependencies
 
@@ -38,7 +43,8 @@ Examples of different storage strategies that can be implemented with the templa
 
 The project uses [Yarn](https://yarnpkg.com/) for package management, and offers the usual commands:
 
-* `yarn run dev` for local development
+* `yarn run dev:app` to start the Webpack development server to serve the application
+* `yarn run dev:pod` to start the Community Solid Server as a data storage for development
 * `yarn run lint` for ESLint
 * `yarn run build` for bundling for production
 
@@ -46,7 +52,7 @@ For example, to start the application locally after cloning, with optional `--ig
 
 ```
 yarn install
-yarn run dev
+yarn run dev:app
 ```
 
 ## Issues
