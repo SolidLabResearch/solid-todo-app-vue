@@ -65,8 +65,8 @@ getTaskLists()
     <AccountMenu />
   </header>
   <main class="flex flex-col flex-grow pt-4 pb-8 px-8">
-    <ActivityIndicator v-if="busy" :text="translations.wait" />
-    <div class="flex flex-col flex-grow gap-2" v-else>
+    <ActivityIndicator v-show="busy" :text="translations.wait" />
+    <div v-show="!busy" class="flex flex-col flex-grow gap-2">
       <CreateEntryForm :create-handler="createHandler" :set-busy="setBusy" :placeholder="translations.newTaskList" />
       <TaskList v-for="list in taskLists" v-bind:key="list.id" :list="list" :set-busy="setBusy" :remove-handler="removeHandler" :save-handler="saveHandler" />
     </div>
