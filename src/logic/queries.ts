@@ -178,28 +178,35 @@ async function save(classes: string, id: string, predicateValues: Record<string,
   await Promise.all(individualQueries.map(async (query) => await update(query, id)))
 }
 
-async function saveTask(taskList: ITaskList, task: ITask): Promise<void> {
+async function saveTask(taskList: ITaskList, task: ITask): Promise<ITask> {
+  task.modified = new Date().toISOString()
+  task.created = task.created ?? task.modified
+  task.status = task.status ?? taskStatusValues[0]
   const predicateValues: Record<string, string> = {
     'todo:title': `"${task.title}"`,
     'todo:description': `"${task.description ?? ''}"`,
     'todo:isPartOf': `<${taskList.id}>`,
     'todo:createdBy': `<${session.info.webId as string}>`,
-    'todo:dateCreated': `"${task.created ?? new Date().toISOString()}"`,
-    'todo:dateModified': `"${new Date().toISOString()}"`,
-    'todo:status': `"${task.status ?? taskStatusValues[0]}"`
+    'todo:dateCreated': `"${task.created}"`,
+    'todo:dateModified': `"${task.modified}"`,
+    'todo:status': `"${task.status}"`
   }
-  return await save(taskClasses, task.id, predicateValues)
+  await save(taskClasses, task.id, predicateValues)
+  return task
 }
 
-async function saveTaskList(taskList: ITaskList): Promise<void> {
+async function saveTaskList(taskList: ITaskList): Promise<ITaskList> {
+  taskList.modified = new Date().toISOString()
+  taskList.created = taskList.created ?? taskList.modified
   const predicateValues: Record<string, string> = {
     'todo:title': `"${taskList.title}"`,
     'todo:description': `"${taskList.description ?? ''}"`,
     'todo:createdBy': `<${session.info.webId as string}>`,
-    'todo:dateCreated': `"${taskList.created ?? new Date().toISOString()}"`,
-    'todo:dateModified': `"${new Date().toISOString()}"`
+    'todo:dateCreated': `"${taskList.created}"`,
+    'todo:dateModified': `"${taskList.modified}"`
   }
-  return await save(taskListClasses, taskList.id, predicateValues)
+  await save(taskListClasses, taskList.id, predicateValues)
+  return taskList
 }
 
 /** Retrieval */
