@@ -18,13 +18,12 @@ const taskClasses: string = 'todo:Task'
 /** Retrieval of specific entries */
 
 async function getWebID(webId?: string): Promise<IWebID> {
-  const webIdValue: URL = new URL(webId ?? session.info.webId as string)
+  const webIdValue: string = webId ?? session.info.webId as string
   const query: string = `
     ${prefixes}
 
     SELECT * WHERE {
-      ?id a foaf:Person .
-      FILTER ( ?id = <${webIdValue.href}> ) .
+      FILTER ( ?id = <${webIdValue}> ) .
       ?id solid:oidcIssuer ?oidcIssuer .
       OPTIONAL { ?id pim:storage ?storage } .
       OPTIONAL { ?id foaf:name|foaf:givenName ?name } .
@@ -34,7 +33,7 @@ async function getWebID(webId?: string): Promise<IWebID> {
   return await findOne<IWebID>(query, webIdValue)
 }
 
-async function getStoragePath(taskListName?: string, taskName?: string): Promise<URL> {
+async function getStoragePath(taskListName?: string, taskName?: string): Promise<string> {
   const webId: IWebID = await getWebID()
   const time: Date = new Date()
 
@@ -49,117 +48,117 @@ async function getStoragePath(taskListName?: string, taskName?: string): Promise
     .replaceAll('//', '/')
     .replace(/^\//, '')
 
-  const pathBase: string | undefined = path.startsWith('http') ? undefined : webId.storage ?? webId.id.href
+  const pathBase: string | undefined = path.startsWith('http') ? undefined : webId.storage ?? webId.id
   const storagePath = new URL(path, pathBase)
 
-  return storagePath
+  return storagePath.href
 }
 
 /** Creating */
 
-async function create(classes: string, url: URL, id: string, predicateValues: Record<string, string>): Promise<void> {
-  const predicateData: string = Object.entries(predicateValues).map(([predicate, value]) => `${predicate} ${value}`).join(' ;\n        ')
-
-  const dataQuery: string = `
-    ${prefixes}
-
-    INSERT DATA {
-      <#${id}> a ${classes} ;
-        ${predicateData} .
-    }
-  `
-  await update(dataQuery, url)
-
+async function create(query: string, url: string): Promise<void> {
   const accessQuery: string = `
     ${prefixes}
 
     INSERT DATA {
       <#owner> a acl:Authorization ;
         acl:agent <${session.info.webId as string}> ;
-        acl:accessTo <${url.href}> ;
+        acl:accessTo <${url}> ;
         acl:mode acl:Read, acl:Write, acl:Control .
     }
   `
-  await update(accessQuery, new URL(`${url.href}.acl`))
+
+  await update(query, url)
+  await update(accessQuery, `${url}.acl`)
 }
 
-async function createTask(taskList: ITaskList, name: string): Promise<void> {
-  const id: string = Date.now().toString()
-  const path: URL = await getStoragePath(taskList.name, name)
-  const date: Date = new Date()
-  const predicateValues: Record<string, string> = {
-    'todo:title': `"${name}"`,
-    'todo:isPartOf': `<${taskList.id.href}>`,
-    'todo:createdBy': `<${session.info.webId as string}>`,
-    'todo:dateCreated': `"${date.toISOString()}"`,
-    'todo:dateModified': `"${date.toISOString()}"`,
-    'todo:status': `"${taskStatusValues[0]}"`
+async function createTask(taskList: ITaskList, text: string): Promise<ITask> {
+  const currentTime: Date = new Date()
+  const url: string = await getStoragePath(taskList.title, text)
+
+  const task: ITask = {
+    id: `${url}#${currentTime.getTime()}`,
+    title: text,
+    created: currentTime.toISOString(),
+    modified: currentTime.toISOString(),
+    creator: session.info.webId as string,
+    status: taskStatusValues[0]
   }
-  return await create(taskClasses, path, id, predicateValues)
+
+  const query: string = `
+    ${prefixes}
+
+    INSERT DATA {
+      <${task.id}> a ${taskClasses} ;
+        todo:title "${task.title}" ;
+        todo:isPartOf <${taskList.id}> ;
+        todo:createdBy <${task.creator as string}> ;
+        todo:dateCreated "${task.created as string}" ;
+        todo:dateModified "${task.modified as string}" ;
+        todo:status "${task.status as string}" .
+    }
+  `
+
+  await create(query, url)
+  return task
 }
 
-async function createTaskList(name: string): Promise<void> {
-  const id: string = Date.now().toString()
-  const path: URL = await getStoragePath(name)
-  const date: Date = new Date()
-  const predicateValues: Record<string, string> = {
-    'todo:title': `"${name}"`,
-    'todo:createdBy': `<${session.info.webId as string}>`,
-    'todo:dateCreated': `"${date.toISOString()}"`,
-    'todo:dateModified': `"${date.toISOString()}"`
+async function createTaskList(text: string): Promise<ITaskList> {
+  const currentTime: Date = new Date()
+  const url: string = await getStoragePath(text)
+
+  const taskList: ITaskList = {
+    id: `${url}#${currentTime.getTime()}`,
+    title: text,
+    created: currentTime.toISOString(),
+    modified: currentTime.toISOString(),
+    creator: session.info.webId as string
   }
-  return await create(taskListClasses, path, id, predicateValues)
+
+  const query: string = `
+    ${prefixes}
+
+    INSERT DATA {
+      <${taskList.id}> a ${taskListClasses} ;
+      todo:title "${taskList.title}" ;
+      todo:createdBy <${session.info.webId as string}> ;
+      todo:dateCreated "${taskList.created as string}" ;
+      todo:dateModified "${taskList.modified as string}" .
+    }
+  `
+
+  await create(query, url)
+  return taskList
 }
 
 /** Removing */
 
-async function remove(classes: string, id: URL): Promise<void> {
-  const dataQuery: string = `
+async function remove(id: string, classes: string): Promise<void> {
+  const query: string = `
     ${prefixes}
 
     DELETE WHERE {
-      <${id.href}> a ${classes} ;
+      <${id}> a ${classes} ;
         ?p ?o .
     }
   `
 
-  await update(dataQuery, id)
-
-  /*
-  The code here works, but is left commented and unused because removing the ACL entries
-  causes a lot of access control issues when running read queries. Deleting all entries from a
-  file on a server via SPARQL query does not remove the file itself, so the queries attempt to
-  access it, even when empty. Leaving the ACL entries in place helps avoid the errors.
-  Ideally, when removing the last entry from a file, the file and its ACL could be removed,
-  but this is maybe beyond the scope of the challenge.
-
-  const aclQuery: string = `
-    ${prefixes}
-
-    DELETE WHERE {
-      ?id a acl:Authorization ;
-        acl:accessTo <${id.href}> ;
-        ?p ?o .
-    }
-  `
-
-  await update(aclQuery, new URL(`${id}.acl`))
-  */
+  await update(query, id)
 }
 
 async function removeTask(task: ITask): Promise<void> {
-  await remove(taskClasses, task.id)
+  await remove(task.id, taskClasses)
 }
 
 async function removeTaskList(taskList: ITaskList): Promise<void> {
   const tasks: ITask[] = await getTasks(taskList)
   await Promise.all(tasks.map(async (task) => await removeTask(task)))
-  await remove(taskListClasses, taskList.id)
+  await remove(taskList.id, taskListClasses)
 }
 
 /** Updating */
 
-async function save(classes: string, id: URL, predicateValues: Record<string, string>): Promise<void> {
+async function save(classes: string, id: string, predicateValues: Record<string, string>): Promise<void> {
   const individualQueries: string[] = Object.entries(predicateValues).map(([predicate, value]) => `
     ${prefixes}
 
@@ -171,7 +170,7 @@ async function save(classes: string, id: URL, predicateValues: Record<string, st
     }
     WHERE {
       ?id a ${classes} .
-      FILTER ( ?id = <${id.href}> ) .
+      FILTER ( ?id = <${id}> ) .
       ?id ${predicate} ?value .
       FILTER ( ?value != ${value} ) .
     }
@@ -181,9 +180,9 @@ async function save(classes: string, id: URL, predicateValues: Record<string, st
 
 async function saveTask(taskList: ITaskList, task: ITask): Promise<void> {
   const predicateValues: Record<string, string> = {
-    'todo:title': `"${task.name}"`,
+    'todo:title': `"${task.title}"`,
     'todo:description': `"${task.description ?? ''}"`,
-    'todo:isPartOf': `<${taskList.id.href}>`,
+    'todo:isPartOf': `<${taskList.id}>`,
     'todo:createdBy': `<${session.info.webId as string}>`,
     'todo:dateCreated': `"${task.created ?? new Date().toISOString()}"`,
     'todo:dateModified': `"${new Date().toISOString()}"`,
@@ -194,7 +193,7 @@ async function saveTask(taskList: ITaskList, task: ITask): Promise<void> {
 
 async function saveTaskList(taskList: ITaskList): Promise<void> {
   const predicateValues: Record<string, string> = {
-    'todo:title': `"${taskList.name}"`,
+    'todo:title': `"${taskList.title}"`,
     'todo:description': `"${taskList.description ?? ''}"`,
     'todo:createdBy': `<${session.info.webId as string}>`,
     'todo:dateCreated': `"${taskList.created ?? new Date().toISOString()}"`,
@@ -205,21 +204,14 @@ async function saveTaskList(taskList: ITaskList): Promise<void> {
 
 /** Retrieval */
 
-async function getTasks(taskList?: ITaskList): Promise<ITask[]> {
-  const listMembership = taskList != null
-    ? `?id todo:isPartOf <${taskList.id.href}> .`
-    : `?id todo:isPartOf [
-        a todo:Task;
-        todo:title "DefaultTaskList"
-      ] .`
-
+async function getTasks(taskList: ITaskList): Promise<ITask[]> {
   const query: string = `
     ${prefixes}
 
     SELECT * WHERE {
       ?id a ${taskClasses} .
-      ${listMembership}
-      ?id todo:title ?name .
+      ?id todo:isPartOf <${taskList.id}> .
+      ?id todo:title ?title .
       OPTIONAL { ?id todo:createdBy ?creator } .
       OPTIONAL { ?id todo:dateCreated ?created } .
       OPTIONAL { ?id todo:dateModified ?modified } .
@@ -228,8 +220,8 @@ async function getTasks(taskList?: ITaskList): Promise<ITask[]> {
     }
   `
   const webId: IWebID = await getWebID()
-  const tasks: ITask[] = await find<ITask>(query, new URL(webId.storage != null ? webId.id : new URL('..', webId.id)))
-  tasks.sort((a, b) => a.name.localeCompare(b.name))
+  const tasks: ITask[] = await find<ITask>(query, webId.storage != null ? webId.id : new URL('..', webId.id).href)
+  tasks.sort((a, b) => a.title.localeCompare(b.title))
   return tasks
 }
 
@@ -239,7 +231,7 @@ async function getTaskLists(): Promise<ITaskList[]> {
 
     SELECT * WHERE {
       ?id a ${taskListClasses} .
-      ?id todo:title ?name .
+      ?id todo:title ?title .
       OPTIONAL { ?id todo:createdBy ?creator } .
       OPTIONAL { ?id todo:dateCreated ?created } .
       OPTIONAL { ?id todo:dateModified ?modified } .
@@ -247,8 +239,8 @@ async function getTaskLists(): Promise<ITaskList[]> {
     }
   `
   const webId: IWebID = await getWebID()
-  const taskLists: ITaskList[] = await find<ITaskList>(query, new URL(webId.storage != null ? webId.id : new URL('..', webId.id)))
-  taskLists.sort((a, b) => a.name.localeCompare(b.name))
+  const taskLists: ITaskList[] = await find<ITaskList>(query, webId.storage != null ? webId.id : new URL('..', webId.id).href)
+  taskLists.sort((a, b) => a.title.localeCompare(b.title))
   return taskLists
 }
 

@@ -9,10 +9,11 @@ module.exports = {
     extend: {
       colors: {
         /** Extremely basic colour scheme, should probably use guidelines:  https://solidproject.org/logo-usage-guidelines */
-        foreground: '#000000',
+        foreground: '#222222',
         background: '#ffffff',
-        accent: '#7c4dff',
-        muffled: '#aaaaaa'
+        accent: '#0088aa',
+        highlight: '#00aad4',
+        muffled: '#999999'
       }
     }
   },

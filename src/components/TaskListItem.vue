@@ -8,13 +8,11 @@ import SubmitButton from './SubmitButton.vue'
 
 defineProps({
   task: { type: Object as PropType<ITask>, required: true },
-  removeHandler: { type: Function, required: false },
-  saveHandler: { type: Function, required: false }
+  removeHandler: { type: Function, required: true },
+  saveHandler: { type: Function, required: true }
 })
 
 const showInfo: Ref<boolean> = ref(false)
-
-function dummy(): void {}
 
 function toggleInfo(event: Event): void {
   event.preventDefault()
@@ -23,16 +21,16 @@ function toggleInfo(event: Event): void {
 </script>
 
 <template>
-  <div class="flex flex-col" :title="task.id.href">
+  <div class="flex flex-col" :title="task.id">
     <form class="flex flex-row">
-      <input type="text" v-model="task.name" class="flex-grow" :placeholder="translations.name" />
-      <SubmitButton icon="save" @click=" saveHandler ? saveHandler(task) : dummy()" v-if="saveHandler != null" />
-      <SubmitButton icon="remove" @click="removeHandler ? removeHandler(task) : dummy()" v-if="saveHandler != null" />
+      <input type="text" v-model="task.title" class="flex-grow font-bold" :placeholder="translations.name" />
+      <SubmitButton icon="save" @click="saveHandler(task)" v-if="saveHandler != null" />
+      <SubmitButton icon="remove" @click="removeHandler(task)" v-if="saveHandler != null" />
       <SubmitButton icon="toggle" @click="toggleInfo" :toggle="showInfo" />
     </form>
     <div v-if="showInfo" class="grid grid-cols-5 gap-1 my-1">
       <label for="{{ task.id }}#id" class="text-sm">id</label>
-      <p v-if="task.id" class="col-span-4 text-muffled text-sm" id="{{ task.id }}#id">{{ task.id }}</p>
+      <a v-if="task.id" class="col-span-4 text-muffled text-sm" id="{{ task.id }}#id" :href="task.id">{{ task.id }}</a>
       <label v-if="task.creator" for="{{ task.id }}#creator" class="text-sm">{{ translations.creator }}</label>
       <a v-if="task.creator" class="col-span-4 text-muffled text-sm" id="{{ task.id }}#creator" :href="task.creator">{{ task.creator }}</a>
       <label v-if="task.created" for="{{ task.id }}#created" class="text-sm">{{ translations.created }}</label>

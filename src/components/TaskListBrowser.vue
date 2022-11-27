@@ -7,49 +7,50 @@ import { confirmation, error } from '../logic/notifications'
 
 import AccountMenu from './AccountMenu.vue'
 import TaskList from './TaskList.vue'
-// import TaskListDefault from './TaskListDefault.vue'
 import CreateEntryForm from './CreateEntryForm.vue'
-import SolidIcon from './SolidIcon.vue'
+import ApplicationIcon from './ApplicationIcon.vue'
+import ActivityIndicator from './ActivityIndicator.vue'
 
 const taskLists: Ref<ITaskList[]> = ref([])
 const busy: Ref<boolean> = ref(false)
 
-async function createTaskListWrapper(name: string): Promise<void> {
-  busy.value = true
-  await createTaskList(name)
-  const lists: ITaskList[] = await getTaskLists()
-  taskLists.value = lists
-  busy.value = false
-}
-
-async function saveListWrapper(list: ITaskList): Promise<void> {
-  await saveTaskList(list)
-  const lists: ITaskList[] = await getTaskLists()
-  taskLists.value = lists
-}
-
 function saveHandler(list: ITaskList): void {
-  saveListWrapper(list)
-    .then(() => confirmation(`${translations.value.updateSuccess}: ${list.name}`))
+  busy.value = true
+  saveTaskList(list)
+    .then(() => {
+      taskLists.value = taskLists.value.sort((a, b) => a.title.localeCompare(b.title))
+      busy.value = false
+      confirmation(`${translations.value.updateSuccess}: ${list.title}`)
+    })
     .catch((reason: any) => error(reason))
 }
 
-function createHandler(name: string): void {
-  createTaskListWrapper(name)
-    .then(() => confirmation(`${translations.value.createSuccess}: ${name}`))
+function createHandler(title: string): void {
+  busy.value = true
+  createTaskList(title)
+    .then((list) => {
+      taskLists.value.push(list)
+      taskLists.value.sort((a, b) => a.title.localeCompare(b.title))
+      busy.value = false
+      confirmation(`${translations.value.createSuccess}: ${list.title}`)
+    })
     .catch(error)
-}
-
-async function removeListWrapper(list: ITaskList): Promise<void> {
-  await removeTaskList(list)
-  const lists: ITaskList[] = await getTaskLists()
-  taskLists.value = lists
 }
 
 function removeHandler(list: ITaskList): void {
-  removeListWrapper(list)
-    .then(() => confirmation(`${translations.value.deleteSuccess}: ${list.name}`))
+  busy.value = true
+  removeTaskList(list)
+    .then(() => {
+      taskLists.value = taskLists.value.filter((t) => t.id !== list.id)
+      taskLists.value.sort((a, b) => a.title.localeCompare(b.title))
+      busy.value = false
+      confirmation(`${translations.value.deleteSuccess}: ${list.title}`)
+    })
     .catch(error)
+}
+
+function setBusy(state: boolean): void {
+  busy.value = state
 }
 
 getTaskLists()
@@ -58,17 +59,19 @@ getTaskLists()
 </script>
 
 <template>
-  <header class="flex flex-row items-center py-4 px-8 z-10 bg-background shadow-lg">
-    <SolidIcon class="h-8 w-8 mr-3" />
-    <h1 class="text-lg uppercase mr-auto">{{ translations.appName }}</h1>
+  <header class="flex flex-row items-center py-4 px-8 z-10 bg-background border-b">
+    <ApplicationIcon class="w-7 h-7 mr-3" />
+    <h1 class="text-lg mr-auto">{{ translations.appName }}</h1>
     <AccountMenu />
   </header>
-  <main class="flex flex-col flex-grow my-4 mx-8 gap-2">
-    <CreateEntryForm :create-handler="createHandler" :busy="busy" :placeholder="translations.newTaskList" />
-    <TaskList v-for="list in taskLists" v-bind:key="list.id.href" :list="list" :remove-handler="removeHandler" :save-handler="saveHandler" />
-    <!-- <TaskListDefault /> -->
+  <main class="flex flex-col flex-grow pt-4 pb-8 px-8">
+    <ActivityIndicator v-if="busy" :text="translations.wait" />
+    <div class="flex flex-col flex-grow gap-2" v-else>
+      <CreateEntryForm :create-handler="createHandler" :set-busy="setBusy" :placeholder="translations.newTaskList" />
+      <TaskList v-for="list in taskLists" v-bind:key="list.id" :list="list" :set-busy="setBusy" :remove-handler="removeHandler" :save-handler="saveHandler" />
+    </div>
   </main>
-  <footer class="mt-auto bg-foreground p-12">
-    <p class="m-auto text-center text-background">{{ translations.footerText }}</p>
+  <footer class="flex flex-row bg-foreground">
+    <p class="text-muffled text-sm py-12 px-8 m-auto text-center">{{ translations.footerText }}</p>
   </footer>
 </template>

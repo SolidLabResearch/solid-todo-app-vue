@@ -1,6 +1,6 @@
 interface ITask {
-  id: URL
-  name: string
+  id: string
+  title: string
   creator?: string
   created?: string
   modified?: string
@@ -9,8 +9,8 @@ interface ITask {
 }
 
 interface ITaskList {
-  id: URL
-  name: string
+  id: string
+  title: string
   creator?: string
   created?: string
   modified?: string
@@ -18,7 +18,7 @@ interface ITaskList {
 }
 
 interface IWebID {
-  id: URL
+  id: string
   name?: string
   storage?: string
   oidcIssuer: string

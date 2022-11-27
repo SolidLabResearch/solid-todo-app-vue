@@ -16,9 +16,13 @@ getWebID()
 </script>
 
 <template>
-  <p :title="session.info.webId" class="pr-4 border-r border-gray-400">{{ webId?.name || translations.webIdNameFallback }}</p>
-  <LanguageSelector class="mx-4 bg-transparent" />
-  <a :href="webId?.id.href" class="pl-4 border-l border-gray-400 hover:text-accent transition-colors duration-300">{{ translations.webId }}</a>
-  <a :href="webId?.oidcIssuer" class="ml-4 hover:text-accent transition-colors duration-300">{{ translations.oidcIssuer }}</a>
-  <a @click="logout" class="ml-4 hover:text-accent transition-colors duration-300 cursor-pointer">{{ translations.logout }}</a>
+  <p :title="session.info.webId" class="mr-4">{{ webId?.name || translations.webIdNameFallback }}</p>
+  <LanguageSelector class="bg-transparent mr-4" />
+  <a @click="logout" class="bg-accent hover:bg-highlight active:bg-foreground text-background rounded py-1 px-2 lowercase transition-colors duration-300 cursor-pointer">{{ translations.logout }}</a>
 </template>
+
+<style scoped>
+.dropdown:hover > div {
+  display: block;
+}
+</style>

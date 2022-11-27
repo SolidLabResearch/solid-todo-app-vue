@@ -4,18 +4,27 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "webpack-dev-server --mode development",
+    "dev:pod": "community-solid-server --rootFilePath ./data --config @css:config/file.json --loggingLevel error --port 3001",
+    "dev:app": "webpack-dev-server --mode development",
     "build": "webpack --mode production",
     "lint": "eslint . --ext .vue --ext .ts --ext .js --max-warnings 0"
   },
+  "config": {
+    "community-solid-server": {
+      "port": 3001,
+      "loggingLevel": "error",
+      "config": "@css:config/file.json",
+      "rootFilePath": "./data"
+    }
+  },
   "dependencies": {
     "@comunica/query-sparql-link-traversal-solid": "^0.0.2-alpha.6.0",
-    "@heroicons/vue": "^2.0.11",
     "@inrupt/solid-client-authn-browser": "^1.12.2",
     "typescript-cookie": "^1.0.4",
     "vue": "^3.2.37"
   },
   "devDependencies": {
+    "@solid/community-server": "^5.0.0",
     "@typescript-eslint/eslint-plugin": "^5.44.0",
     "autoprefixer": "^10.4.8",
     "css-loader": "^6.7.1",

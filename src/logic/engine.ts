@@ -5,16 +5,16 @@ import { session } from './session'
 
 const queryEngine: QueryEngine = new QueryEngine()
 
-function context(url?: URL): QueryStringContext {
+function context(url?: string): QueryStringContext {
   return {
-    sources: [url?.href ?? session.info.webId as string],
+    sources: [url ?? session.info.webId as string],
     lenient: true,
-    baseIRI: url?.href,
+    baseIRI: url,
     [ActorHttpInruptSolidClientAuthn.CONTEXT_KEY_SESSION.name]: session
   }
 }
 
-async function find<T>(query: string, url?: URL): Promise<T[]> {
+async function find<T>(query: string, url?: string): Promise<T[]> {
   return await new Promise<T[]>((resolve, reject) => {
     queryEngine.queryBindings(query, context(url))
       .then((bindingsStream: BindingsStream) => {
@@ -26,7 +26,7 @@ async function find<T>(query: string, url?: URL): Promise<T[]> {
             if (output.has(subject)) {
               entity = output.get(subject) as Record<string, string>
             } else {
-              entity = { id: new URL(subject) }
+              entity = { id: subject }
               output.set(subject, entity)
             }
             bindings.delete('id').forEach((value, key) => { entity[key.value] = value.value })
@@ -36,12 +36,12 @@ async function find<T>(query: string, url?: URL): Promise<T[]> {
   })
 }
 
-async function findOne<T>(query: string, url?: URL): Promise<T> {
+async function findOne<T>(query: string, url?: string): Promise<T> {
   const results: T[] = await find<T>(query, url)
   return results[0]
 }
 
-async function update(query: string, url: URL): Promise<void> {
+async function update(query: string, url: string): Promise<void> {
   const queryContext: QueryStringContext = context(url)
   await queryEngine.queryVoid(query, queryContext)
   await queryEngine.invalidateHttpCache(undefined, queryContext)

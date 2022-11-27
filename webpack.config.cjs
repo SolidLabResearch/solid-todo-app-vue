@@ -8,6 +8,7 @@ module.exports = {
   entry: {
     main: resolve(__dirname, 'src', 'main.ts')
   },
+  stats: 'minimal',
   output: {
     clean: true,
     filename: '[name].[contenthash:8].js',
@@ -48,7 +49,7 @@ module.exports = {
     }),
     new HtmlWebpackPlugin({
       template: resolve(__dirname, 'public', 'index.html'),
-      favicon: resolve(__dirname, 'public', 'solid.svg'),
+      favicon: resolve(__dirname, 'public', 'icon.svg'),
       publicPath: process.env.TODO_APP_ROOT ?? '/',
       hash: true
     })
@@ -63,9 +64,13 @@ module.exports = {
     moduleIds: 'deterministic',
     runtimeChunk: 'single',
     concatenateModules: true,
-    minimize: true
+    minimize: true,
+    usedExports: 'global'
   },
   devServer: {
-    historyApiFallback: true
+    historyApiFallback: true,
+    liveReload: true,
+    port: 3000,
+    hot: true
   }
 }
