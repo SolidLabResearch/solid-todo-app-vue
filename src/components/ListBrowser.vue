@@ -23,12 +23,17 @@ function setCurrentList(list?: ITaskList) {
   display.value = busy.value ? 'busy' : list != null ? 'view' : 'select'
 }
 
-function loadLists() {
+function loadLists(refresh: boolean = false) {
   setBusy(true)
-  getTaskLists().then((result) => {
+  getTaskLists(refresh).then((result) => {
     lists.value = result
     setBusy(false)
   }).catch(error)
+}
+
+function refresh(): void {
+  setCurrentList(undefined)
+  loadLists(true)
 }
 
 function saveList(list: ITaskList): void {
@@ -68,7 +73,7 @@ loadLists()
   <header class="flex flex-row items-center py-4 px-8 z-10 bg-background border-b">
     <AppIcon class="w-7 h-7 mr-3" />
     <h1 class="text-lg mr-auto">{{ translations.appName }}</h1>
-    <AccountMenu />
+    <AccountMenu :refresh="refresh" />
   </header>
   <main class="flex flex-col flex-grow pt-4 pb-8 px-8">
     <ListViewer v-show="!busy" v-if="currentList != null" :list="currentList" :remove-list="removeList" :save-list="saveList" :set-busy="setBusy" :set-current-list="setCurrentList" />

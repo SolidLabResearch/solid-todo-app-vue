@@ -47,4 +47,8 @@ async function update(query: string, url: string): Promise<void> {
   await queryEngine.invalidateHttpCache(undefined, queryContext)
 }
 
-export { find, findOne, update }
+async function invalidateCache(): Promise<void> {
+  await queryEngine.invalidateHttpCache()
+}
+
+export { find, findOne, update, invalidateCache }

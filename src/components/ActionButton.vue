@@ -15,6 +15,7 @@ const submitHandler = (event: Event) => event.preventDefault()
     <span v-else-if="icon === 'add'" :class="buttonClass">add</span>
     <span v-else-if="icon === 'goto'" :class="buttonClass">arrow_forward</span>
     <span v-else-if="icon === 'back'" :class="buttonClass">arrow_back</span>
+    <span v-else-if="icon === 'refresh'" :class="buttonClass">refresh</span>
     <span v-else-if="icon === 'toggle' && !toggle" :class="buttonClass">expand_more</span>
     <span v-else-if="icon === 'toggle'" :class="buttonClass">expand_less</span>
   </button>

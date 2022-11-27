@@ -1,5 +1,5 @@
 import { session } from './session'
-import { find, findOne, update } from './engine'
+import { find, findOne, update, invalidateCache } from './engine'
 import { type ITaskList, type ITask, type IWebID } from './model'
 import { defaultTaskPath, taskStatusValues, identifierFromName } from './utils'
 
@@ -232,7 +232,7 @@ async function getTasks(taskList: ITaskList): Promise<ITask[]> {
   return tasks
 }
 
-async function getTaskLists(): Promise<ITaskList[]> {
+async function getTaskLists(refresh: boolean = false): Promise<ITaskList[]> {
   const query: string = `
     ${prefixes}
 
@@ -245,6 +245,9 @@ async function getTaskLists(): Promise<ITaskList[]> {
       OPTIONAL { ?id todo:description ?description } .
     }
   `
+  if (refresh) {
+    await invalidateCache()
+  }
   const webId: IWebID = await getWebId()
   const taskLists: ITaskList[] = await find<ITaskList>(query, webId.storage != null ? webId.id : new URL('..', webId.id).href)
   taskLists.sort((a, b) => a.title.localeCompare(b.title))
