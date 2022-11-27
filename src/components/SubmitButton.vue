@@ -11,8 +11,8 @@ const submitHandler = (event: Event) => event.preventDefault()
 
 <template>
   <button type="submit" @click="submitHandler" class="flex flex-row items-center ml-4 cursor-pointer hover:text-highlight transition-colors">
-    <span v-if="icon === 'save'" :class="buttonClass">check</span>
-    <span v-else-if="icon === 'remove'" :class="buttonClass">remove</span>
+    <span v-if="icon === 'save'" :class="buttonClass">save</span>
+    <span v-else-if="icon === 'remove'" :class="buttonClass">delete</span>
     <span v-else-if="icon === 'add'" :class="buttonClass">add</span>
     <span v-else-if="icon === 'toggle' && !toggle" :class="buttonClass">expand_more</span>
     <span v-else-if="icon === 'toggle'" :class="buttonClass">expand_less</span>
