@@ -1,6 +1,7 @@
 import { QueryEngine } from '@comunica/query-sparql-link-traversal-solid'
 import { ActorHttpInruptSolidClientAuthn } from '@comunica/actor-http-inrupt-solid-client-authn'
 import { Bindings, BindingsStream, QueryStringContext } from '@comunica/types'
+import { KeysHttp, KeysInitQuery } from '@comunica/context-entries'
 import { session, fetchWithSession } from './session'
 
 const queryEngine: QueryEngine = new QueryEngine()
@@ -8,9 +9,9 @@ const queryEngine: QueryEngine = new QueryEngine()
 function context(url?: string): QueryStringContext {
   return {
     sources: [url ?? session.info.webId as string],
-    lenient: true,
-    baseIRI: url,
-    fetch: fetchWithSession,
+    [KeysInitQuery.baseIRI.name]: url,
+    [KeysInitQuery.lenient.name]: true,
+    [KeysHttp.fetch.name]: fetchWithSession,
     [ActorHttpInruptSolidClientAuthn.CONTEXT_KEY_SESSION.name]: session
   }
 }
