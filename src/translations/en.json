@@ -11,6 +11,8 @@
   "newTaskList": "new tasklist",
   "newTask": "new task",
   "defaultTaskList": "DefaultTaskList",
+  "refreshLists": "Refresh tasklists",
+  "viewSource": "View source code on GitHub",
   "creator": "creator",
   "created": "created",
   "modified": "modified",

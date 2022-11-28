@@ -16,7 +16,7 @@ defineProps({
 
 <template>
   <InputForm class="bg-background rounded p-2" :placeholder="translations.newTaskList" :submit-handler="createList" :set-busy="setBusy" />
-  <div v-for="list in lists" v-bind:key="list.id" @click="setCurrentList(list)" class="flex flex-row items-center bg-background rounded p-2 gap-2 mt-2 hover:bg-accent hover:text-background hover:cursor-pointer active:bg-foreground transition-colors">
+  <div v-for="list in lists" v-bind:key="list.id" @click="setCurrentList(list)" class="flex flex-row items-center bg-background rounded p-2 gap-2 mt-2 hover:cursor-pointer hover:bg-highlight hover:text-background active:bg-foreground transition-colors">
     <p class="flex-grow">{{ list.title }}</p>
     <ActionButton icon="goto" />
   </div>

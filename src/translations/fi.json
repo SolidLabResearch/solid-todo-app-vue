@@ -11,6 +11,8 @@
   "newTaskList": "uusi tehtävälista",
   "newTask": "uusi tehtävä",
   "defaultTaskList": "Oletustehtävälista",
+  "refreshLists": "Lataa tehtävälistat uudelleen",
+  "viewSource": "Näytä lähdekoodi GitHub-palvelussa",
   "creator": "luoja",
   "created": "luotu",
   "modified": "muokattu",

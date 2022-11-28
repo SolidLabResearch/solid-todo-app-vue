@@ -70,7 +70,7 @@ loadLists()
 </script>
 
 <template>
-  <header class="flex flex-row items-center py-4 px-8 z-10 bg-background border-b">
+  <header class="flex flex-row items-center py-4 px-8 z-10 bg-background shadow">
     <AppIcon class="w-7 h-7 mr-3" />
     <h1 class="text-lg mr-auto">{{ translations.appName }}</h1>
     <AccountMenu :refresh="refresh" />
