@@ -1,4 +1,4 @@
-import { getDefaultSession, Session } from '@inrupt/solid-client-authn-browser'
+import { getDefaultSession, Session, fetch as fetchWithSession } from '@inrupt/solid-client-authn-browser'
 import { error } from './notifications'
 import { translations } from './language'
 
@@ -42,4 +42,4 @@ session.onSessionRestore((currentUrl: string) => {
 
 await handleRedirectAfterPageLoad()
 
-export { login, logout, session }
+export { login, logout, session, fetchWithSession }
