@@ -22,7 +22,7 @@ jobs:
       run: yarn install --frozen-lockfile --ignore-engines
     - name: Run ESLint
       run: yarn run lint
-    - name: Build with Webpack
+    - name: Build with Vite
       run: yarn run build
       env:
         TODO_APP_ROOT: /solid-todo-app-vue/
