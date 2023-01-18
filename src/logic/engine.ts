@@ -33,7 +33,7 @@ async function find<T>(query: string, url?: string): Promise<T[]> {
             }
             bindings.delete('id').forEach((value, key) => { entity[key.value] = value.value })
           }
-        }).on('end', () => resolve(Array.from(output.values()) as T[])).on('error', reject)
+        }).on('end', () => { resolve(Array.from(output.values()) as T[]) }).on('error', reject)
       }).catch(reject)
   })
 }

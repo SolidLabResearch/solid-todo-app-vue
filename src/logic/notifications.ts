@@ -24,8 +24,8 @@ function notify(notificationType: string, notificationMessage: string, duration?
   }
 }
 
-const error = (message: string): void => notify('error', message)
-const info = (message: string): void => notify('info', message, defaultDuration)
-const confirmation = (message: string): void => notify('confirmation', message, defaultDuration)
+const error = (message: string): void => { notify('error', message) }
+const info = (message: string): void => { notify('info', message, defaultDuration) }
+const confirmation = (message: string): void => { notify('confirmation', message, defaultDuration) }
 
 export { notifications, error, info, confirmation }

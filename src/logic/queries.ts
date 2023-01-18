@@ -152,7 +152,7 @@ async function removeTask(task: ITask): Promise<void> {
 
 async function removeTaskList(taskList: ITaskList): Promise<void> {
   const tasks: ITask[] = await getTasks(taskList)
-  await Promise.all(tasks.map(async (task) => await removeTask(task)))
+  await Promise.all(tasks.map(async (task) => { await removeTask(task) }))
   await remove(taskList.id, taskListClasses)
 }
 
@@ -175,7 +175,7 @@ async function save(classes: string, id: string, predicateValues: Record<string,
       FILTER ( ?value != ${value} ) .
     }
   `)
-  await Promise.all(individualQueries.map(async (query) => await update(query, id)))
+  await Promise.all(individualQueries.map(async (query) => { await update(query, id) }))
 }
 
 async function saveTask(taskList: ITaskList, task: ITask): Promise<ITask> {

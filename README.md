@@ -55,6 +55,8 @@ yarn install --frozen-lockfile
 yarn run dev
 ```
 
+For Visual Studio Code, a Vue extension such as [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) might be useful, potentially with [TypeScript takeover mode](https://vuejs.org/guide/typescript/overview.html#volar-takeover-mode).
+
 ## Issues
 
 Any issues encountered can be reported via the GitHub issue tracker. However, before reporting issues, please note that this is not a production-ready application and is not intended for everyday use.

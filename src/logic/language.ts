@@ -24,6 +24,6 @@ function setLanguage(lang: string): void {
   setCookie(languageCookie, lang, { sameSite: 'strict' })
 }
 
-document.addEventListener('DOMContentLoaded', () => setLanguage(language.value))
+document.addEventListener('DOMContentLoaded', () => { setLanguage(language.value) })
 
 export { setLanguage, translations, language, availableLanguages }
