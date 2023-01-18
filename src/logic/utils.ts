@@ -8,7 +8,7 @@ const allowedCharacters: string = 'abcdefghijklmnopqrstuwvxyz1234567890'
 
 // These default values for task path and WebID are for development purposes to avoid re-typing
 // const defaultTaskPath: string = '{storage}/tasks/{tasklist}'
-// const defaultWebId: string = 'http://localhost:3001/profile/card#me'
+// const defaultWebId: string = 'http://localhost:3001/test/profile/card#me'
 
 const defaultTaskPath: string = 'private/todos/todos'
 const defaultWebId: string = ''

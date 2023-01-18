@@ -8,22 +8,14 @@
     "jsx": "preserve",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noImplicitAny": false,
     "esModuleInterop": false,
-    "lib": [
-      "ESNext",
-      "DOM"
-    ],
+    "lib": ["ESNext", "DOM"],
     "skipLibCheck": true,
-    "allowSyntheticDefaultImports": true,
+    "noEmit": true,
+    "noImplicitAny": false,
     "sourceMap": false,
-    "declaration": false
+    "composite": true,
+    "allowSyntheticDefaultImports": true
   },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.d.ts",
-    "src/**/*.vue",
-    "src/**/*.json",
-    "webpack.config.cjs"
-  ]
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "src/**/*.json", "vite.config.ts"]
 }

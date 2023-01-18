@@ -3,17 +3,17 @@
     Solid Tasks
 </h1>
 
-This is an experimental to-do list application built on top of Solid, in an effort to identify challenges related to developing interoperable applications on top of Solid. This is **not intended for actual use** in any capacity whatsoever, and exists as a technical prototype.
+This is an experimental tasklist application built on top of Solid, in an effort to identify challenges related to developing interoperable applications on top of Solid. This is **not intended for actual use** in any capacity whatsoever, and exists as a technical prototype.
 
 There is a live version [available](https://solidlabresearch.github.io/solid-todo-app-vue/) published on GitHub Pages from the main branch.
 
 ## Dependencies
 
 * [Vue](https://vuejs.org/) for the user interface
-* [Webpack](https://webpack.js.org/) for development server, building, bundling
+* [Vite](https://vitejs.dev/) for development server, building, bundling
 * [Comunica with link traversal](https://github.com/comunica/comunica-feature-link-traversal) for reading and writing data
 * [Small custom vocabulary](https://github.com/SolidLabResearch/solid-todo-app-react/tree/main/ontology) for describing the data
-* The data can be stored in a Solid pod, for example using the [Community Solid Server](https://github.com/CommunitySolidServer/CommunitySolidServer)
+* [Community Solid Server](https://github.com/CommunitySolidServer/CommunitySolidServer) as local temporary data storage while developing, but other Solid pods should also work
 
 ## Functionality
 
@@ -21,7 +21,7 @@ Thus far, the prototype offers the following functionality:
 
 * Logging in and out with a WebID, where the OIDC issuer is discovered via `solid:oidcIssuer`, and displaying the user's name from `foaf:name` or `foaf:givenName` after logging in
 * Creating, renaming and removing to-do lists and to-do entries within those lists, in a nested fashion
-* Language selection, before or after logging in, with choice saved in cookies
+* Language selection between English and Finnish
 
 
 ## Storage strategies
@@ -43,16 +43,16 @@ Examples of different storage strategies that can be implemented with the templa
 
 The project uses [Yarn](https://yarnpkg.com/) for package management, and offers the usual commands:
 
-* `yarn run dev:app` to start the Webpack development server to serve the application
-* `yarn run dev:pod` to start the Community Solid Server as a data storage for development
+* `yarn run dev` to start the Webpack development server to serve the application
+* `yarn run pod` to start the Community Solid Server as a data storage for development
 * `yarn run lint` for ESLint
 * `yarn run build` for bundling for production
 
 For example, to start the application locally after cloning, with optional `--ignore-engines` flag if the local Node version is an up-to-date one:
 
 ```
-yarn install
-yarn run dev:app
+yarn install --frozen-lockfile
+yarn run dev
 ```
 
 ## Issues
