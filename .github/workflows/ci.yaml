@@ -14,16 +14,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
     - uses: actions/setup-node@v3
       with:
         node-version: 19
-    - name: Install dependencies
+        cache: yarn
+    - name: Prepare application
       run: yarn install --frozen-lockfile --ignore-engines
-    - name: Run ESLint
-      run: yarn run lint
-    - name: Build with Vite
-      run: yarn run build
       env:
         TODO_APP_ROOT: /solid-todo-app-vue/
     - name: Upload artifact
