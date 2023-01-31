@@ -1,4 +1,4 @@
-import { getDefaultSession, Session, fetch as fetchWithSession } from '@inrupt/solid-client-authn-browser'
+import { type Session, getDefaultSession, fetch as fetchWithSession } from '@inrupt/solid-client-authn-browser'
 import { error } from './notifications'
 import { translations } from './language'
 

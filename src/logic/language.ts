@@ -1,4 +1,4 @@
-import { Ref, ref } from 'vue'
+import { type Ref, ref } from 'vue'
 import { getCookie, setCookie } from 'typescript-cookie'
 
 import english from '../translations/en.json'

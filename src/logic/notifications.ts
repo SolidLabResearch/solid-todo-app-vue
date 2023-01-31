@@ -1,4 +1,4 @@
-import { Ref, ref } from 'vue'
+import { type Ref, ref } from 'vue'
 import { type INotification } from './model'
 
 const notifications: Ref<Set<INotification>> = ref(new Set<INotification>())

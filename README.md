@@ -23,7 +23,6 @@ Thus far, the prototype offers the following functionality:
 * Creating, renaming and removing to-do lists and to-do entries within those lists, in a nested fashion
 * Language selection between English and Finnish
 
-
 ## Storage strategies
 
 The prototype also allows customising the storage paths for newly-created to-do lists and entries:
@@ -43,10 +42,10 @@ Examples of different storage strategies that can be implemented with the templa
 
 The project uses [Yarn](https://yarnpkg.com/) for package management, and offers the usual commands:
 
-* `yarn run dev` to start the Webpack development server to serve the application
-* `yarn run pod` to start the Community Solid Server as a data storage for development
-* `yarn run lint` for ESLint
-* `yarn run build` for bundling for production
+* `yarn dev` to start the Webpack development server to serve the application
+* `yarn pod` to start the Community Solid Server as a data storage for development
+* `yarn lint` for ESLint
+* `yarn build` for bundling for production
 
 For example, to start the application locally after cloning, with optional `--ignore-engines` flag if the local Node version is an up-to-date one:
 

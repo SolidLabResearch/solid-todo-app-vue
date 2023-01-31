@@ -1,6 +1,6 @@
 import { QueryEngine } from '@comunica/query-sparql-link-traversal-solid'
 import { ActorHttpInruptSolidClientAuthn } from '@comunica/actor-http-inrupt-solid-client-authn'
-import { Bindings, BindingsStream, QueryStringContext } from '@comunica/types'
+import type { Bindings, BindingsStream, QueryStringContext } from '@comunica/types'
 import { KeysHttp, KeysInitQuery } from '@comunica/context-entries'
 import { session, fetchWithSession } from './session'
 
