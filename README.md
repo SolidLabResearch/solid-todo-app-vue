@@ -51,7 +51,7 @@ For example, to start the application locally after cloning, with optional `--ig
 
 ```
 yarn install --frozen-lockfile
-yarn run dev
+yarn dev
 ```
 
 For Visual Studio Code, a Vue extension such as [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) might be useful, potentially with [TypeScript takeover mode](https://vuejs.org/guide/typescript/overview.html#volar-takeover-mode).
