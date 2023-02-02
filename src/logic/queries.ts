@@ -18,16 +18,19 @@ const taskClasses: string = 'todo:Task'
 /** Retrieval of specific entries */
 
 async function getWebId(webId?: string): Promise<IWebID> {
-  const webIdValue: string = webId ?? session.info.webId as string
+  const webIdValue = webId ?? session.info.webId
+  if (webIdValue == null) {
+    throw new Error('WebID IRI is required to query it')
+  }
   const query: string = `
     ${prefixes}
 
     SELECT * WHERE {
       FILTER ( ?id = <${webIdValue}> ) .
       ?id solid:oidcIssuer ?oidcIssuer .
-      OPTIONAL { ?id pim:storage ?storage } .
-      OPTIONAL { ?id foaf:name|foaf:givenName ?name } .
-      OPTIONAL { ?id todo:pathTemplate ?pathTemplate } .
+      OPTIONAL { ?id pim:storage ?storage . }
+      OPTIONAL { ?id foaf:name|foaf:givenName ?name . }
+      OPTIONAL { ?id todo:pathTemplate ?pathTemplate . }
     }
   `
   return await findOne<IWebID>(query, webIdValue)

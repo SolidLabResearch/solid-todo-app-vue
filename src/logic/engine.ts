@@ -1,50 +1,51 @@
 import { QueryEngine } from '@comunica/query-sparql-link-traversal-solid'
 import { ActorHttpInruptSolidClientAuthn } from '@comunica/actor-http-inrupt-solid-client-authn'
 import type { Bindings, BindingsStream, QueryStringContext } from '@comunica/types'
-import { KeysHttp, KeysInitQuery } from '@comunica/context-entries'
-import { session, fetchWithSession } from './session'
+import { session } from './session'
 
 const queryEngine: QueryEngine = new QueryEngine()
 
 function context(url?: string): QueryStringContext {
-  return {
-    sources: [url ?? session.info.webId as string],
-    [KeysInitQuery.baseIRI.name]: url,
-    [KeysInitQuery.lenient.name]: true,
-    [KeysHttp.fetch.name]: fetchWithSession,
-    [ActorHttpInruptSolidClientAuthn.CONTEXT_KEY_SESSION.name]: session
+  const querySource = url ?? session.info.webId
+  if (querySource == null) {
+    throw new Error('Queries require a source URL')
   }
+  const context: QueryStringContext = {
+    sources: [querySource],
+    baseIRI: url,
+    lenient: true
+  }
+  if (session.info.isLoggedIn) {
+    // context.fetch = session.fetch
+    context[ActorHttpInruptSolidClientAuthn.CONTEXT_KEY_SESSION.name] = session
+  }
+  return context
 }
 
 async function find<T>(query: string, url?: string): Promise<T[]> {
-  return await new Promise<T[]>((resolve, reject) => {
-    queryEngine.queryBindings(query, context(url))
-      .then((bindingsStream: BindingsStream) => {
-        const output: Map<string, Record<string, string | URL>> = new Map<string, Record<string, string>>()
-        bindingsStream.on('data', (bindings: Bindings) => {
-          const subject: string | undefined = bindings.get('id')?.value
-          if (subject != null) {
-            let entity: Record<string, string | URL>
-            if (output.has(subject)) {
-              entity = output.get(subject) as Record<string, string>
-            } else {
-              entity = { id: subject }
-              output.set(subject, entity)
-            }
-            bindings.delete('id').forEach((value, key) => { entity[key.value] = value.value })
-          }
-        }).on('end', () => { resolve(Array.from(output.values()) as T[]) }).on('error', reject)
-      }).catch(reject)
+  return await new Promise((resolve, reject) => {
+    queryEngine.queryBindings(query, context(url)).then((bindingsStream: BindingsStream) => {
+      const output: T[] = []
+      bindingsStream.on('data', (bindings: Bindings) => {
+        const entry = {}
+        for (const [key, value] of bindings) {
+          entry[key.value] = value.value
+        }
+        output.push(entry as T)
+      }).on('error', reject).on('end', () => { resolve(output) })
+    }).catch(reject)
   })
 }
 
 async function findOne<T>(query: string, url?: string): Promise<T> {
-  const results: T[] = await find<T>(query, url)
-  return results[0]
+  return await new Promise((resolve, reject) => {
+    const queryForOne = query.includes('LIMIT 1') ? query : query.trimEnd() + ' LIMIT 1'
+    find<T>(queryForOne, url).then((results: T[]) => { resolve(results[0]) }).catch(reject)
+  })
 }
 
 async function update(query: string, url: string): Promise<void> {
-  const queryContext: QueryStringContext = context(url)
+  const queryContext = context(url)
   await queryEngine.queryVoid(query, queryContext)
   await queryEngine.invalidateHttpCache(undefined, queryContext)
 }

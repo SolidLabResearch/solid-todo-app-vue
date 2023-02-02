@@ -11,6 +11,8 @@ async function login(provider: string, appName: string): Promise<void> {
       clientName: appName,
       redirectUrl: window.location.href
     })
+  } else {
+    throw new Error('Already logged in')
   }
 }
 
