@@ -25,15 +25,18 @@ async function getWebId(webId?: string): Promise<IWebID> {
   const query: string = `
     ${prefixes}
 
-    SELECT * WHERE {
-      FILTER ( ?id = <${webIdValue}> ) .
+    SELECT ?id ?oidcIssuer ?storage ?name ?pathTemplate WHERE {
       ?id solid:oidcIssuer ?oidcIssuer .
-      OPTIONAL { ?id pim:storage ?storage . }
-      OPTIONAL { ?id foaf:name|foaf:givenName ?name . }
-      OPTIONAL { ?id todo:pathTemplate ?pathTemplate . }
+      OPTIONAL { ?id pim:storage ?storage } .
+      OPTIONAL { ?id foaf:name|foaf:givenName ?name } .
+      OPTIONAL { ?id todo:pathTemplate ?pathTemplate } .
     }
   `
-  return await findOne<IWebID>(query, webIdValue)
+  const foundWebId = await findOne<IWebID>(query, webIdValue)
+  if (foundWebId != null) {
+    return foundWebId
+  }
+  throw new Error('The query discovered no WebID')
 }
 
 async function getStoragePath(taskListName?: string, taskName?: string): Promise<string> {
@@ -60,6 +63,7 @@ async function getStoragePath(taskListName?: string, taskName?: string): Promise
 /** Creating */
 
 async function create(query: string, url: string): Promise<void> {
+  /*
   const accessQuery: string = `
     ${prefixes}
 
@@ -70,9 +74,10 @@ async function create(query: string, url: string): Promise<void> {
         acl:mode acl:Read, acl:Write, acl:Control .
     }
   `
+  */
 
   await update(query, url)
-  await update(accessQuery, `${url}.acl`)
+  // await update(accessQuery, `${url}.acl`)
 }
 
 async function createTask(taskList: ITaskList, text: string): Promise<ITask> {
@@ -239,7 +244,7 @@ async function getTaskLists(refresh: boolean = false): Promise<ITaskList[]> {
   const query: string = `
     ${prefixes}
 
-    SELECT * WHERE {
+    SELECT ?id ?title ?creator ?created ?modified ?description WHERE {
       ?id a ${taskListClasses} .
       ?id todo:title ?title .
       OPTIONAL { ?id todo:createdBy ?creator } .
@@ -252,8 +257,11 @@ async function getTaskLists(refresh: boolean = false): Promise<ITaskList[]> {
     await invalidateCache()
   }
   const webId: IWebID = await getWebId()
-  const taskLists: ITaskList[] = await find<ITaskList>(query, webId.storage != null ? webId.id : new URL('..', webId.id).href)
-  taskLists.sort((a, b) => a.title.localeCompare(b.title))
+  const seedUrl = webId.storage != null ? webId.id : new URL('..', webId.id).href
+  const taskLists: ITaskList[] = await find<ITaskList>(query, seedUrl)
+  if (taskLists.length > 0) {
+    taskLists.sort((a, b) => a.title.localeCompare(b.title))
+  }
   return taskLists
 }
 
