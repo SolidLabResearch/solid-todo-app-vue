@@ -45,6 +45,7 @@ async function update(query: string, url: string): Promise<void> {
   const queryContext = context(url)
   await queryEngine.queryVoid(query, queryContext)
   await queryEngine.invalidateHttpCache(url)
+  await queryEngine.invalidateHttpCache(new URL('..', url).href)
 }
 
 async function invalidateCache(): Promise<void> {
