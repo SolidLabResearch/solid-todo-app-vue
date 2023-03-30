@@ -19,10 +19,5 @@ export default defineConfig({
     commonjsOptions: {
       strictRequires: true
     }
-  },
-  resolve: {
-    alias: {
-      util: 'node_modules/readable-stream/lib/ours/util.js'
-    }
   }
 })
