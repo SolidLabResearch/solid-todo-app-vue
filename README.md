@@ -19,11 +19,9 @@ There is a live version [available](https://solidlabresearch.github.io/solid-tod
 
 The latest known compatibility status with a number of servers implementing the Solid protocol is the following:
 
-| Server                  | Status     |
-|:------------------------|:-----------|
-| Community Solid Server  | Compatible |
-| Node Solid Server       | Unknown    |
-| Enterprise Solid Server | Unknown    |
+* Community Solid Server: compatible with version 6.0.0+ and probably 5.1.0+
+* Node Solid Server: not tested
+* Enterprise Solid Server: not tested
 
 ## Functionality
 
