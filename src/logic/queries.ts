@@ -15,13 +15,17 @@ const prefixes: string = `
 const taskListClasses: string = 'todo:TaskList'
 const taskClasses: string = 'todo:Task'
 
+let pendingWebId: Promise<IWebID> | undefined
+
 /** Retrieval of specific entries */
 
-async function getWebId(webId?: string): Promise<IWebID> {
+async function getWebIdPromise(webId?: string): Promise<IWebID> {
   const webIdValue = webId ?? session.info.webId
+
   if (webIdValue == null) {
     throw new Error('WebID IRI is required to query it')
   }
+
   const query: string = `
     ${prefixes}
 
@@ -32,15 +36,24 @@ async function getWebId(webId?: string): Promise<IWebID> {
       OPTIONAL { ?id todo:pathTemplate ?pathTemplate } .
     }
   `
-  const foundWebId = await findOne<IWebID>(query, webIdValue)
-  if (foundWebId != null) {
-    return foundWebId
+  const value: IWebID | undefined = await findOne<IWebID>(query, webIdValue)
+  if (value === undefined) {
+    throw new Error('Query discovered no WebID')
   }
-  throw new Error('The query discovered no WebID')
+
+  return value
+}
+
+async function getWebId(webId?: string): Promise<IWebID> {
+  if (pendingWebId === undefined) {
+    pendingWebId = getWebIdPromise(webId)
+  }
+  return await pendingWebId
 }
 
 async function getStoragePath(taskListName?: string, taskName?: string): Promise<string> {
   const webId: IWebID = await getWebId()
+
   const time: Date = new Date()
 
   const path: string = (webId.pathTemplate ?? defaultTaskPath)
@@ -236,7 +249,9 @@ async function getTasks(taskList: ITaskList): Promise<ITask[]> {
   `
   const webId: IWebID = await getWebId()
   const tasks: ITask[] = await find<ITask>(query, webId.storage != null ? webId.id : new URL('..', webId.id).href)
-  tasks.sort((a, b) => a.title.localeCompare(b.title))
+  if (tasks.length > 0) {
+    tasks.sort((a, b) => a.title.localeCompare(b.title))
+  }
   return tasks
 }
 
@@ -256,12 +271,14 @@ async function getTaskLists(refresh: boolean = false): Promise<ITaskList[]> {
   if (refresh) {
     await invalidateCache()
   }
+
   const webId: IWebID = await getWebId()
   const seedUrl = webId.storage != null ? webId.id : new URL('..', webId.id).href
   const taskLists: ITaskList[] = await find<ITaskList>(query, seedUrl)
   if (taskLists.length > 0) {
     taskLists.sort((a, b) => a.title.localeCompare(b.title))
   }
+
   return taskLists
 }
 

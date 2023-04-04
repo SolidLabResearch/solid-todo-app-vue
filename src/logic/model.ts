@@ -30,4 +30,4 @@ interface INotification {
   message: string
 }
 
-export { type ITask, type ITaskList, type IWebID, type INotification }
+export type { ITask, ITaskList, IWebID, INotification }

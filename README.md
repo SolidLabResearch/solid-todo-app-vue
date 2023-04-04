@@ -15,6 +15,16 @@ There is a live version [available](https://solidlabresearch.github.io/solid-tod
 * [Small custom vocabulary](https://github.com/SolidLabResearch/solid-todo-app-react/tree/main/ontology) for describing the data
 * [Community Solid Server](https://github.com/CommunitySolidServer/CommunitySolidServer) as local temporary data storage while developing, but other Solid pods should also work
 
+## Compatibility
+
+The latest known compatibility status with a number of servers implementing the Solid protocol is the following:
+
+| Server                  | Status     |
+|:------------------------|:-----------|
+| Community Solid Server  | Compatible |
+| Node Solid Server       | Unknown    |
+| Enterprise Solid Server | Unknown    |
+
 ## Functionality
 
 Thus far, the prototype offers the following functionality:
@@ -43,7 +53,7 @@ Examples of different storage strategies that can be implemented with the templa
 The project uses [Yarn](https://yarnpkg.com/) for package management, and offers the usual commands:
 
 * `yarn dev` to start the Webpack development server to serve the application
-* `yarn pod` to start the Community Solid Server as a data storage for development
+* `yarn css` to start the Community Solid Server as a data storage for development, with users from [tests/users.json](tests/users.json)
 * `yarn lint` for ESLint
 * `yarn build` for bundling for production
 
