@@ -23,7 +23,7 @@
     }
   },
   "dependencies": {
-    "@comunica/query-sparql-link-traversal-solid": "0.0.2-alpha.6.0",
+    "@comunica/query-sparql-link-traversal-solid": "^0.2.0",
     "@inrupt/solid-client-authn-browser": "^1.0.0",
     "typescript-cookie": "^1.0.0",
     "vue": "^3.0.0"
