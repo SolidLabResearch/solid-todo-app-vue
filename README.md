@@ -55,11 +55,11 @@ The project uses [Yarn](https://yarnpkg.com/) version 3 and up for package manag
 * `yarn lint` for ESLint
 * `yarn build` for bundling for production
 
-For example, to start the application locally after cloning, with optional `--ignore-engines` flag if the local Node version is an up-to-date one:
+For example, to start the application locally after cloning:
 
 ```
-yarn install --immutable
-yarn dev
+$ yarn install --immutable
+$ yarn dev
 ```
 
 For Visual Studio Code, a Vue extension such as [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) might be useful, potentially with [TypeScript takeover mode](https://vuejs.org/guide/typescript/overview.html#volar-takeover-mode).
