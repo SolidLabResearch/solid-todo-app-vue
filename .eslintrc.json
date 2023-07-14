@@ -6,8 +6,7 @@
   "extends": [
     "eslint:recommended",
     "plugin:vue/base",
-    "plugin:vue/vue3-essential",
-    "standard-with-typescript"
+    "plugin:vue/vue3-essential"
   ],
   "ignorePatterns": [
     "vite.config.ts",
@@ -31,16 +30,14 @@
     "no-unused-expressions": "error",
     "no-unused-labels": "error",
     "no-unused-vars": "error",
-    "space-before-function-paren": "off",
-    "@typescript-eslint/space-before-function-paren": [
+    "space-before-function-paren": [
       "error",
       {
         "anonymous": "always",
         "named": "never"
       }
     ],
-    "indent": "off",
-    "@typescript-eslint/indent": [
+    "indent": [
       "error",
       2
     ]

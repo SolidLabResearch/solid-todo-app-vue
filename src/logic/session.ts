@@ -34,7 +34,7 @@ session.onSessionExpiration(() => {
   error(translations.value.sessionExpired)
 })
 
-session.onSessionRestore((currentUrl: string) => {
+session.onSessionRestore(() => {
   if (!session.info.isLoggedIn) {
     error(translations.value.sessionExpired)
   } else {

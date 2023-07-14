@@ -48,7 +48,7 @@ Examples of different storage strategies that can be implemented with the templa
 
 ## Development setup
 
-The project uses [Yarn](https://yarnpkg.com/) for package management, and offers the usual commands:
+The project uses [Yarn](https://yarnpkg.com/) version 3 and up for package management, and offers the usual commands:
 
 * `yarn dev` to start the Webpack development server to serve the application
 * `yarn css` to start the Community Solid Server as a data storage for development, with users from [tests/users.json](tests/users.json)
@@ -58,7 +58,7 @@ The project uses [Yarn](https://yarnpkg.com/) for package management, and offers
 For example, to start the application locally after cloning, with optional `--ignore-engines` flag if the local Node version is an up-to-date one:
 
 ```
-yarn install --frozen-lockfile
+yarn install --immutable
 yarn dev
 ```
 

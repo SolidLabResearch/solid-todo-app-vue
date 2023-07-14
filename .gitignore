@@ -1,4 +1,5 @@
 .vscode/
+.yarn/
 dist/
 node_modules/
 .eslintcache
