@@ -23,8 +23,6 @@ jobs:
         node-version: ${{ env.NODE_VERSION }}
         cache: yarn
         cache-dependency-path: yarn.lock
-    - name: Set yarn version
-      run: yarn set version stable
     - name: Install dependencies
       run: yarn install --immutable
     - name: Run ESLint
@@ -34,7 +32,7 @@ jobs:
       env:
         TODO_APP_ROOT: /solid-todo-app-vue/
     - name: Upload artifact
-      uses: actions/upload-pages-artifact@v1
+      uses: actions/upload-pages-artifact@v2
       if: success() && github.ref == 'refs/heads/main'
       with:
         path: ./dist

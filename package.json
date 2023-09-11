@@ -6,8 +6,9 @@
   "license": "MIT",
   "private": true,
   "type": "module",
+  "packageManager": "yarn@3.6.3",
   "scripts": {
-    "css": "community-solid-server --config @css:config/default.json --seededPodConfigJson ./tests/users.json --loggingLevel error --port 3001",
+    "css": "community-solid-server",
     "dev": "vite",
     "build": "vue-tsc && vite build",
     "preview": "vite preview",
