@@ -6,7 +6,7 @@
   "license": "MIT",
   "private": true,
   "type": "module",
-  "packageManager": "yarn@3.6.3",
+  "packageManager": "yarn@3.6.4",
   "scripts": {
     "css": "community-solid-server",
     "dev": "vite",
@@ -30,7 +30,7 @@
     "vue": "^3.0.0"
   },
   "devDependencies": {
-    "@solid/community-server": "^6.0.0",
+    "@solid/community-server": "^7.0.0",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "@vitejs/plugin-vue": "^4.0.0",

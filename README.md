@@ -1,7 +1,8 @@
-<h1 align="center">
-    <img src="./public/icon.svg" alt="icon"><br>
-    Solid Tasks
-</h1>
+<p align="center">
+    <img src="https://raw.githubusercontent.com/SolidLabResearch/solid-todo-app-vue/main/public/icon.svg" alt="icon" width="60">
+</p>
+
+<h1 align="center">Solid Tasks</h1>
 
 This is an experimental tasklist application built on top of Solid, in an effort to identify challenges related to developing interoperable applications on top of Solid. This is **not intended for actual use** in any capacity whatsoever, and exists as a technical prototype.
 
